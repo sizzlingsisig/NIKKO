@@ -1,2 +1,8 @@
 # Agent workflow artifacts (specs, plans) — local working docs, not project source
 docs/superpowers/
+
+# AI tooling / agent state
+.opencode/
+.impeccable/
+.agents/
+.superpowers/
