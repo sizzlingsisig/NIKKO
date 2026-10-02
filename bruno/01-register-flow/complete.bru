@@ -1,0 +1,58 @@
+meta {
+  name: Complete registration (FR-5)
+  type: http
+  seq: 8
+}
+
+docs {
+  The client reports what it uploaded. The server HEADs each object in
+  storage to confirm existence + size before writing any DB row, so the
+  DB can never point at nothing.
+
+  sha256 values below are the digests of the committed fixtures
+  (fixtures/form5.pdf, photo.png, signature.png). Re-run
+  `sha256sum fixtures/*` if you ever edit them.
+}
+
+post {
+  url: {{baseUrl}}/api/register/{{ref}}/complete
+  body: json
+  auth: none
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  [
+    {
+      "kind": "form5",
+      "sha256": "0af020f9774371fc7ed1f02a23da8bea2c2b5969184847bc4b24e0fdac07c164",
+      "mime": "application/pdf"
+    },
+    {
+      "kind": "photo",
+      "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+      "mime": "image/png"
+    },
+    {
+      "kind": "signature",
+      "sha256": "c414cd0e204de974f73753c7e28d7638e7b3691bb8b1a2bab6b25bb7fed7ce77",
+      "mime": "image/png"
+    }
+  ]
+}
+
+script:post-response {
+  // Chain: the admin file viewer needs a file id.
+  bru.setVar("fileId", res.body.files[0].id);
+}
+
+tests {
+  test("marks the registration complete with 3 files", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal("complete");
+    expect(res.body.files).to.have.lengthOf(3);
+  });
+}

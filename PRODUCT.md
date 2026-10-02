@@ -34,8 +34,9 @@ server-parsing competitor cannot truthfully make the same on-device claim.
 
 ## Operating Context
 
-- UPV Student Organization Registration — **Q1 2027 window** (time-boxed
-  registration windows, not a always-on service).
+- UPV Student Organization Registration — **semester-reusable** (ADR-0001):
+  the org re-runs registration each term (members re-register; terms labeled
+  `AY YYYY-YY S#`). The original Q1 2027 time-boxed-window framing is retired.
 - Students arrive with a Form 5 PDF (digital or scanned); scan path uses OCR
   with a confidence threshold and forced manual review below 75%.
 - Current build is a **prototype/simulation**: no real PDF parsing shipped, no
@@ -65,9 +66,14 @@ server-parsing competitor cannot truthfully make the same on-device claim.
   Supersedes "New Integrated Kampus Kartsilyo Online", which superseded
   "UPV Org Registration", which itself superseded the long header title
   "Form 5 Member Ingestion Portal".
-- Open decisions (recorded, not invented): backend hosting, real admin auth
-  scheme, OCR engine choice, ref-ID sequencing, XLSX generator, authoritative
-  degree-program list, FR-6 ID card format.
+- Decision status (2026-10-02, see `docs/adr/` + `docs/GLOSSARY.md`):
+  **decided** — admin auth scheme (seeded multi-admin + sessions, ADR-0003),
+  ref-ID sequencing (per-calendar-year, ADR-0002), degree-program list
+  (static typed), DB engine (SQLite for pass 1), term lifecycle
+  (archive & reset, ADR-0002). **Open/deferred** — backend hosting
+  (deferred: localhost now, VPS leading candidate), XLSX generator
+  (deferred: CSV only), OCR engine (Tesseract.js planned, milestone 2),
+  FR-6 ID card format (remains out of scope).
 
 ## Brand Commitments
 

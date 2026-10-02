@@ -1,0 +1,30 @@
+meta {
+  name: Presign artifact uploads (FR-5)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/register/{{ref}}/artifacts
+  body: none
+  auth: none
+}
+
+script:post-response {
+  // Chain: the three PUT steps upload straight to object storage.
+  bru.setVar("form5Url", res.body.uploads.form5.url);
+  bru.setVar("photoUrl", res.body.uploads.photo.url);
+  bru.setVar("signatureUrl", res.body.uploads.signature.url);
+}
+
+tests {
+  test("mints a presigned PUT per artifact", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.ref).to.equal(bru.getVar("ref"));
+    expect(res.body.uploads.form5.url).to.be.a("string");
+    expect(res.body.uploads.photo.max_bytes).to.equal(2097152);
+    expect(res.body.uploads.form5.max_bytes).to.equal(5242880);
+    // DB stores keys, never URLs (FR-5).
+    expect(res.body.uploads.form5.key).to.include("form5/2024-01234/");
+  });
+}

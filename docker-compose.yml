@@ -1,0 +1,39 @@
+services:
+  api:
+    build: ./backend
+    env_file: .env
+    volumes:
+      - form5-data:/data
+    ports: ["8000:8000"]
+
+  web:
+    build: ./frontend
+    ports: ["80:80"]
+    depends_on: [api]
+
+  # Object storage (PRD FR-5). MinIO's community edition was archived
+  # and pulled from Docker Hub in 2026; Garage is the S3-compatible
+  # replacement used for both dev and prod.
+  garage:
+    image: dxflrs/garage:v2.3.0
+    profiles: [dev]
+    # --single-node suits a one-box deployment; --default-bucket creates
+    # the bucket and the access key on first boot, so the API has
+    # something to talk to with no manual setup.
+    command: /garage server --single-node --default-bucket
+    environment:
+      GARAGE_DEFAULT_ACCESS_KEY: form5portalaccess
+      GARAGE_DEFAULT_SECRET_KEY: form5portaldevsecret
+      GARAGE_DEFAULT_BUCKET: org-roster-dev
+    volumes:
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+    ports:
+      - "9100:3900"   # S3 API (quasar dev owns host 9000)
+      - "3902:3902"   # optional web UI
+
+volumes:
+  form5-data:
+  garage-meta:
+  garage-data:

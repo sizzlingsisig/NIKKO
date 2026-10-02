@@ -1,0 +1,39 @@
+meta {
+  name: Register — invalid fields (FR-2)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/register
+  body: json
+  auth: none
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "student_number": "24-1234",
+    "full_name": "",
+    "degree_program": "BS Computer Science",
+    "college": "UNKNOWN",
+    "year_level": 9,
+    "up_mail": "student@gmail.com",
+    "consent": true
+  }
+}
+
+tests {
+  test("rejects every bad field with the FR-2 message", function() {
+    expect(res.status).to.equal(422);
+    const messages = res.body.detail.map((e) => e.msg);
+    expect(messages).to.include("Must match format 20YY-XXXXX (e.g., 2024-01234).");
+    expect(messages).to.include("Please enter your full legal name.");
+    expect(messages).to.include("Select your college unit.");
+    expect(messages).to.include("Year level must be between 1 and 6.");
+    expect(messages).to.include("Must be a valid @up.edu.ph address.");
+  });
+}

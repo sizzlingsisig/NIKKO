@@ -1,0 +1,35 @@
+meta {
+  name: Register — no consent (FR-2 / RA 10173)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/register
+  body: json
+  auth: none
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "student_number": "2024-01234",
+    "full_name": "DELA CRUZ, Juan Miguel, S.",
+    "degree_program": "BS Computer Science",
+    "college": "CAS",
+    "year_level": 3,
+    "up_mail": "jmdelacruz@up.edu.ph",
+    "consent": false
+  }
+}
+
+tests {
+  test("blocks submission without RA 10173 consent", function() {
+    expect(res.status).to.equal(422);
+    const messages = res.body.detail.map((e) => e.msg);
+    expect(messages).to.include("RA 10173 consent is required.");
+  });
+}

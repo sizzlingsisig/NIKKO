@@ -7,3 +7,41 @@ docs/superpowers/
 .agents/
 .superpowers/
 .tmp/
+.playwright-cli/
+
+# ─── Secrets ─────────────────────────────────────────────────────────────
+# Root .env holds real values (ADMIN_TOKEN, S3 keys). Only .env.example is
+# source. Note: frontend/.gitignore already covers .env* under frontend/,
+# but nothing covered the root .env until now.
+.env
+.env.*
+!.env.example
+
+# ─── Python ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ─── Node / Quasar build output ──────────────────────────────────────────
+node_modules/
+dist/
+.quasar/
+.output/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# ─── Runtime data ────────────────────────────────────────────────────────
+# SQLite lives in the compose volume (form5-data → /data). A host-side
+# `uvicorn` run creates one beside the app; it is never source.
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── OS ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

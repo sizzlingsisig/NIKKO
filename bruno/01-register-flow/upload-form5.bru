@@ -1,0 +1,27 @@
+meta {
+  name: Upload form5.pdf → storage (FR-5)
+  type: http
+  seq: 5
+}
+
+docs {
+  Presigned URL points straight at object storage, so this PUT has no
+  baseUrl — the signature is in the query string, and no auth header is
+  sent (adding one is fine but unnecessary).
+}
+
+put {
+  url: {{form5Url}}
+  body: file
+  auth: none
+}
+
+body:file {
+  file: @file(fixtures/form5.pdf) @contentType(application/pdf)
+}
+
+tests {
+  test("storage accepts the upload", function() {
+    expect(res.status).to.be.oneOf([200, 204]);
+  });
+}

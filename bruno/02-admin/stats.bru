@@ -1,0 +1,25 @@
+meta {
+  name: Stats (FR-4.2)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/admin/stats
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminToken}}
+}
+
+tests {
+  test("returns raw / unique / duplicates counters", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.raw).to.be.a("number");
+    expect(res.body.unique_students).to.be.a("number");
+    expect(res.body.duplicates).to.be.a("number");
+    expect(res.body.raw).to.equal(res.body.unique_students + res.body.duplicates);
+  });
+}

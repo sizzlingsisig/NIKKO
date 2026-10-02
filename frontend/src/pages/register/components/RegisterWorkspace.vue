@@ -1,11 +1,12 @@
 <script setup lang="ts">
-// RegisterWorkspace: the document workspace's layout shell. It stacks the
-// static WorkspaceBar over the stateful PhaseStrip, then opens the two
-// column row the sidebar cards (Privacy/Guidelines) and the DocketPanel
-// fill — both arriving as slots, so this component owns no content and no
-// layout decisions beyond the grid itself. The wizard state rides three
-// props straight through to the PhaseStrip; its jump is re-emitted under
-// the same name so the page binds one handler to the whole shell.
+// RegisterWorkspace: the register page's layout shell. It stacks the
+// static WorkspaceBar masthead over the stateful PhaseStrip, then opens
+// the two column row the sidebar cards (Privacy/Guidelines) and the
+// DocketPanel fill — both arriving as slots, so this component owns no
+// content and no layout decisions beyond the grid itself. The wizard
+// state rides three props straight through to the PhaseStrip; its jump is
+// re-emitted under the same name so the page binds one handler to the
+// whole shell.
 import WorkspaceBar from "./WorkspaceBar.vue";
 import PhaseStrip from "./PhaseStrip.vue";
 
@@ -53,15 +54,37 @@ const emit = defineEmits<{ jump: [step: number] }>();
 // bar and strip (whose default order is 0) so the header stack stays put;
 // the sidebar's DOM position — ahead of the panel, for the desktop columns
 // below — never shows on a narrow screen. min-width 0 on both columns, so
-// neither is sized past its track by its own content.
+// neither is sized past its track by its own content. Both columns are
+// flex stacks so their content can fill the grid row the columns share —
+// the grid already stretches the two boxes to one height, and these rules
+// push that height down to the visible paper inside each column.
 .workspace__sidebar {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   order: 2;
 }
 
+// The last sidebar card absorbs the column's slack, so the card stack
+// always reaches the column's bottom edge (a card with spare height keeps
+// its content at the top; only its paper extends). No gap: the cards keep
+// their existing flush block stacking.
+.workspace__sidebar > :last-child {
+  flex: 1 0 auto;
+}
+
 .workspace__panel {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   order: 1;
+}
+
+// The docket panel fills its column the same way; DocketPanel's own flex
+// column keeps the header at the top and the actions footer on the bottom
+// edge as the panel grows.
+.workspace__panel > .docket-panel {
+  flex: 1 0 auto;
 }
 
 // ≥900px: the row splits — sidebar 30%, panel the rest — at the workspace

@@ -1,0 +1,19 @@
+docs {
+  # Form5 Portal — API collection
+
+  Exercises the whole backend: the student registration flow
+  (register → presign → upload → complete) and the admin console
+  (seed, stats, roster, CSV export, gated file view).
+
+  ## Run order matters
+  `01-register-flow` is a chain: each request saves vars that the next
+  one reads (`{{ref}}`, `{{form5Url}}`, `{{fileId}}`). Run the folder
+  top to bottom. `02-admin` is order-independent, except run `seed`
+  before `stats`/`roster`/`export-csv` if you want the demo rows.
+
+  ## CLI
+  ```
+  npm i -g @usebruno/cli
+  bru run --env local
+  ```
+}

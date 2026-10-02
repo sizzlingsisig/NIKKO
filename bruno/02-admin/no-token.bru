@@ -1,0 +1,17 @@
+meta {
+  name: Admin without token → 401 (FR-4.1)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/admin/stats
+  body: none
+  auth: none
+}
+
+tests {
+  test("rejects an unauthenticated admin call", function() {
+    expect(res.status).to.equal(401);
+  });
+}

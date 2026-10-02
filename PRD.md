@@ -5,6 +5,9 @@
 > Status: prototype only — no real PDF parsing, no network requests,
 > no data persisted.
 > Update 2026-09-27: FR-5 artifact storage decided (R2 prod + MinIO dev).
+> Update 2026-10-02: decisions moved to ADRs (`docs/adr/`). The Q1 2027
+> window framing is superseded — the portal is semester-reusable
+> (ADR-0001). Where this PRD conflicts with an ADR, the ADR wins.
 
 ## 1. Overview
 
@@ -30,8 +33,9 @@ consent text must be reworded before production.
 ## 3. Scope
 
 **In:** Register view (3 steps), Admin view (login → dashboard → export),
-artifact storage (FR-5), all FRs below.
-**Out:** Real auth, ID collation (FR-6 planned), payment/financial flows.
+artifact storage (FR-5), all FRs below. Real admin auth (seeded
+multi-admin + 12h sliding sessions, ADR-0003) added 2026-10-02.
+**Out:** ID collation (FR-6 — remains out of scope), payment/financial flows.
 
 ## 4. Functional requirements
 
@@ -139,15 +143,25 @@ to admins rather than silently "successful").
 - Performance budgets: vector parse ≤ 400 ms; simulated WAL commit ≤ 35 ms.
 - Upload limits: PDF 10 MB, images 5 MB each (~20 MB/member ceiling).
 - Accessibility: dropzone keyboard-operable, `aria-live` parse log, labelled inputs.
-- Theme divergence (known): prototype uses maroon `#7B1113`/gold `#E8C766`; production theme is pine-teal `#004A36`/wine `#7B1113`/amber `#FFB81C` (WCAG-fixed, see `frontend/src/css/`). Re-skin on implementation.
+- Theme divergence (known): prototype uses maroon `#7B1113`/gold `#E8C766`; production theme is pine-teal `#004A36`/wine `#7B1113`/amber `#FFB81C` (WCAG-fixed, see `frontend/src/css/`). Re-skin deferred until after the E2E chain is green (ADR-0001).
 
 ## 7. Open questions for production
 
-1. Backend: real API + DB (SQLite `registrations.db` per prototype SQL block, or Postgres)? Who hosts?
-2. Auth: real admin token scheme (FR-4.1 demo accepts anything)?
-3. OCR: client Tesseract.js vs server OCR service? Keep 75% threshold?
+Status 2026-10-02 — resolved items point at ADRs (`docs/adr/`):
+
+1. Backend: **SQLite (WAL) for pass 1** (ADR-0003); hosting **deferred** —
+   localhost until the E2E chain is green, one-box VPS running the existing
+   compose stack is the leading candidate (ADR-0001).
+2. Auth: **decided — seeded multi-admin accounts, password → 12h sliding
+   session, CLI provisioning** (ADR-0003). Demo bearer token retires when
+   login lands.
+3. OCR: **client-side Tesseract.js, 75% threshold kept** — milestone 2;
+   pass 1 parses digital text-layer PDFs only (ADR-0001).
 4. ~~Storage~~ Resolved (FR-5: self-hosted Garage, S3-compatible, key-pointer schema).
-5. Reference IDs: server-sequenced vs random? Collision handling?
-6. XLSX: real generator lib (prototype only simulates)?
-7. Programs list: authoritative degree-program source vs 6-item datalist?
-8. FR-6 ID collation: PVC CR80 cards or PDF sheets? Existing card design?
+5. Reference IDs: **decided — server-sequenced `REG-YYYY-NNNNN`,
+   per-calendar-year sequence continuing across terms** (ADR-0002).
+6. XLSX: **deferred — CSV only for pass 1** (ADR-0001).
+7. Programs list: **decided — static typed list in `frontend/src/domain/`**;
+   no free text (keeps dedupe review and export consistent).
+8. FR-6 ID collation: **remains out of scope** (PRODUCT.md); revisit only
+   after pass 1.

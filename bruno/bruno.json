@@ -1,0 +1,7 @@
+{
+  "version": "1",
+  "name": "form5portal-api",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"],
+  "defaultEnvironment": "local"
+}

@@ -1,0 +1,41 @@
+meta {
+  name: Register (FR-3)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/register
+  body: json
+  auth: none
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "student_number": "2024-01234",
+    "full_name": "DELA CRUZ, Juan Miguel, S.",
+    "degree_program": "BS Computer Science",
+    "college": "CAS",
+    "year_level": 3,
+    "up_mail": "jmdelacruz@up.edu.ph",
+    "consent": true
+  }
+}
+
+script:post-response {
+  // Chain: the artifact steps need the ref this request mints.
+  bru.setVar("ref", res.body.ref);
+}
+
+tests {
+  test("acknowledges with a ref only (FR-3)", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body.ref).to.be.a("string").and.match(/^REG-\d{4}-\d{5}$/);
+    // FR-3: the response must not echo stored records back.
+    expect(res.body).to.not.have.property("student_number");
+  });
+}

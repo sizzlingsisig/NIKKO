@@ -1,0 +1,30 @@
+meta {
+  name: Gated file URL (FR-5)
+  type: http
+  seq: 5
+}
+
+docs {
+  {{fileId}} is set by 01-register-flow/complete.bru.
+}
+
+get {
+  url: {{baseUrl}}/api/admin/files/{{fileId}}/url
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{adminToken}}
+}
+
+tests {
+  test("mints a presigned GET behind the token gate", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.kind).to.equal("form5");
+    expect(res.body.url).to.be.a("string");
+    expect(res.body.sha256).to.equal(
+      "0af020f9774371fc7ed1f02a23da8bea2c2b5969184847bc4b24e0fdac07c164"
+    );
+  });
+}

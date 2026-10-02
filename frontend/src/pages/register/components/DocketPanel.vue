@@ -3,9 +3,8 @@
 // step components (UploadStep, ReviewStep, DoneStep) render inside. It caps
 // itself with the 2px maroon rule (the AppCard idiom, spec §6.4), carries the
 // pinned eyebrow over the serif display title with the per-step meta floated
-// right, and always ships the stationery status line in its footer — the
-// actions slot rides beside it and wraps onto its own line when the row fills
-// (spec §5: stationery line above the right-hand labels).
+// right, and closes with an actions footer only when a step ships controls
+// (steps without actions render no footer strip).
 withDefaults(
   defineProps<{
     eyebrow?: string;
@@ -18,9 +17,9 @@ withDefaults(
 <template>
   <!-- Paper frame: maroon cap rule on top, hairline edges elsewhere, square
        corners. Header (eyebrow → serif title, meta slot pinned right) →
-       body (default slot at AppCard's body rhythm) → footer, which renders
-       whether or not actions arrive — the stationery line is part of the
-       panel (spec §6.4), not slot content. -->
+       body (default slot at AppCard's body rhythm) → footer, which ships
+       only when the actions slot arrives — a step with no controls gets
+       no footer strip. -->
   <article class="docket-panel">
     <header class="docket-panel__head">
       <div class="docket-panel__heading">
@@ -36,9 +35,8 @@ withDefaults(
       <slot />
     </div>
 
-    <footer class="docket-panel__foot">
-      <p class="docket-panel__status">STATIONERY: REV4 · MODE: SIMULATION</p>
-      <div v-if="$slots.actions" class="docket-panel__actions">
+    <footer v-if="$slots.actions" class="docket-panel__foot">
+      <div class="docket-panel__actions">
         <slot name="actions" />
       </div>
     </footer>
@@ -49,13 +47,18 @@ withDefaults(
 // The frame: white paper, hairline edge, and the 2px maroon rule capping it
 // (rule-strong = maroon, 10.87:1 on paper). Square corners, no shadow —
 // elevation is the border alone, the AppCard idiom. Border is declared
-// before border-top so the accent wins the cascade.
+// before border-top so the accent wins the cascade. Flex column so the
+// panel can stretch to its workspace row (RegisterWorkspace fills it) with
+// the header on the top edge and the footer on the bottom edge — the body
+// below absorbs the slack.
 .docket-panel {
   background: var(--color-surface);
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-radius: 0;
   border-top: var(--border-rule) solid var(--color-rule-strong);
   box-shadow: none;
+  display: flex;
+  flex-direction: column;
 }
 
 // Header: eyebrow over the title as one block on the left, meta slot
@@ -125,15 +128,17 @@ withDefaults(
 }
 
 // Body: the default slot at AppCard's body rhythm — spacing-6 base,
-// spacing-8 at ≥768px (declared below with the header/footer).
+// spacing-8 at ≥768px (declared below with the header/footer). flex: 1
+// absorbs the extra height when the grid stretches the panel to match the
+// sidebar column, so the footer stays pinned to the panel's bottom edge.
 .docket-panel__body {
+  flex: 1 0 auto;
   padding: var(--spacing-6);
 }
 
-// Footer: always rendered, closed by a hairline — the control boundary
-// (rule-entry, 3.48:1) because the actions live here. Stationery line left,
-// actions slot floated right; flex-wrap stacks them (stationery above the
-// labels) whenever the row runs out of room, per spec §5.
+// Footer: rendered only when the actions slot arrives, closed by a
+// hairline — the control boundary (rule-entry, 3.48:1) because the actions
+// live here. Right-aligned, wrapping row of buttons.
 .docket-panel__foot {
   align-items: center;
   border-top: var(--border-hairline) solid var(--color-rule-entry);
@@ -143,21 +148,8 @@ withDefaults(
   padding: var(--spacing-4) var(--spacing-6);
 }
 
-// The fixed status line — the panel's own honest ledger footer
-// (spec §6.4, wording table D3): mono caption, muted, eyebrow-tracked like
-// every other mono label on the page.
-.docket-panel__status {
-  color: var(--color-foreground-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
-  margin: 0;
-}
-
-// Actions slot: floated right of the stationery line — the auto margin
-// right-aligns it whether it shares the row or sits on its own wrapped
-// line — as a right-aligned, wrapping row of buttons.
+// Actions slot: right-aligned, wrapping row of buttons — the auto margin
+// pins it to the right edge of the footer row.
 .docket-panel__actions {
   display: flex;
   flex-wrap: wrap;

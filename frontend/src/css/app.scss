@@ -1,0 +1,617 @@
+// ============================================================================
+// Typography — self-hosted faces
+// ----------------------------------------------------------------------------
+// These were pulled from the Google Fonts CDN and committed under
+// `src/assets/fonts/`, so there is no third-party origin in the critical path
+// and no extra DNS/TLS handshake before first paint.
+//
+// The CDN was serving 8 faces across 3 families, and the browser downloaded the
+// matching `latin` subset for each — plus Jakarta at weight 500, which nothing
+// in `src/` uses (36 declarations are weight 700, two are 600, one is 800, and
+// 400 is the body default). Three files now cover every weight in use:
+//
+//   plus-jakarta-sans-var.woff2  27,348 B  variable, 200-800 in one file
+//   jetbrains-mono-400.woff2     21,168 B
+//   libre-caslon-text-700.woff2  25,260 B
+//                                --------
+//                                 73,776 B
+//
+// `size-adjust` on the fallback faces below is the part that matters for feel:
+// it makes the local fallback occupy the same horizontal space as the real
+// face, so a slow font load no longer reflows text that has already been
+// painted. Combined with `font-display: swap` there is no invisible-text block
+// and no post-swap reflow.
+// ============================================================================
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("../assets/fonts/plus-jakarta-sans-var.woff2")
+    format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/jetbrains-mono-400.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Libre Caslon Text";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/libre-caslon-text-700.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+// Metric-matched fallbacks. Each `size-adjust` is the ratio of the real face's
+// average glyph width to the fallback's, so the swapped-in text occupies the
+// same advance widths. `ascent-override`/`descent-override` keep the line box
+// from growing or shrinking when the real face arrives, which is what actually
+// moves the ruled header. Only `local()` is used, so this costs no network.
+@font-face {
+  font-family: "Plus Jakarta Sans Fallback";
+  src: local("Arial");
+  size-adjust: 100.5%;
+  ascent-override: 105%;
+  descent-override: 27%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src:
+    local("DejaVu Sans Mono"), local("Liberation Mono"), local("Courier New");
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Libre Caslon Text Fallback";
+  src: local("Georgia"), local("Times New Roman");
+  size-adjust: 100%;
+  ascent-override: 92%;
+  descent-override: 23%;
+  line-gap-override: 0%;
+}
+
+// ============================================================================
+// Form5Portal design-token layer (authoritative)
+// ----------------------------------------------------------------------------
+// This is the single source of truth for theming. `quasar.variables.scss` is
+// only the Quasar bridge and mirrors these colors in hex (Quasar runs its
+// vars through Sass color functions, which cannot evaluate `oklch()`).
+//
+// Reference design system: ui/web/design-systems.md -> "Modern Dark Mode"
+// (enterprise + accessibility-critical) re-skinned in UPV brand hues.
+// Conventions: OKLCH only, semantic names, 4px spacing base, CSS custom props.
+//
+// All ratios below are MEASURED, not estimated.
+// WCAG 2.1 text contrast (AA normal 4.5:1, AAA 7:1):
+//   graphite / pine-teal / dark-wine on white, canvas or honeydew  AAA 8.9-13.7
+//   white on pine-teal 10.33 | dark-wine 10.87 | graphite 13.69      AAA
+//   graphite on amber 7.90                                           AAA
+//   muted on white 6.00 | info 5.77 | destructive 6.57 | success 5.05  AA
+//   graphite on any *-soft surface 11.8-12.4                          AAA
+// Never: amber bg + white text (1.73) | honeydew on white (1.16)
+//        | wine on pine (1.05) | success text on success-soft (4.45)
+// WCAG 2.1 non-text contrast (1.4.11, 3:1) for control boundaries:
+//   --color-border-input #8f897d = 3.48:1 on white, 3.24:1 on canvas
+//   --color-border is dividers/card edges only (1.34:1, decorative)
+// ============================================================================
+
+:root {
+  // ---- Surfaces ----------------------------------------------------------
+  --color-background: oklch(0.9756 0.0026 106.45); // #f7f7f5 canvas
+  --color-surface: oklch(1 0 0); // #ffffff
+  --color-surface-sunken: oklch(0.9591 0.0074 80.72); // #f4f1ec
+  --color-surface-brand: oklch(0.9453 0.0224 164.51); // #e0f2e9 honeydew
+  --color-surface-inverse: oklch(0.2149 0.0085 240.3); // #161a1d terminal
+
+  // ---- Foreground -------------------------------------------------------
+  --color-foreground: oklch(0.2992 0.0029 17.32); // #2f2d2d graphite
+  --color-foreground-muted: oklch(0.4998 0.0222 255.62); // #5b6470
+  --color-foreground-inverse: oklch(1 0 0);
+
+  // ---- Lines ------------------------------------------------------------
+  --color-border: oklch(0.9018 0.0145 84.59); // #e3ded4 dividers only
+  --color-border-input: oklch(0.6318 0.019 84.59); // #8f897d 3.48:1 controls
+
+  // ---- Brand ------------------------------------------------------------
+  --color-primary: oklch(0.3632 0.0739 167.54); // #004a36 pine-teal
+  --color-primary-hover: oklch(0.2928 0.0575 170.82); // #003528
+  --color-primary-soft: oklch(0.9453 0.0224 164.51); // #e0f2e9
+  --color-on-primary: oklch(1 0 0);
+
+  --color-secondary: oklch(0.3767 0.1396 26.51); // #7b1113 dark-wine
+  --color-secondary-hover: oklch(0.3096 0.111 25.62); // #5c0d0f
+  --color-secondary-soft: oklch(0.9563 0.0186 21.57); // #fdeceb
+  --color-on-secondary: oklch(1 0 0);
+
+  --color-accent: oklch(0.8277 0.1667 79.6); // #ffb81c amber-flame
+  --color-accent-soft: oklch(0.9659 0.032 87.29); // #fdf3dc
+  --color-on-accent: oklch(0.2992 0.0029 17.32); // graphite, 7.90:1
+
+  // ---- Semantic status --------------------------------------------------
+  --color-success: oklch(0.5264 0.1287 151.79); // #1a7f43
+  --color-success-soft: oklch(0.9545 0.0182 161.12); // #e6f4ec
+  --color-destructive: oklch(0.5003 0.1821 29.51); // #b42318
+  --color-destructive-soft: oklch(0.9563 0.0186 21.57); // #fdeceb
+  --color-info: oklch(0.5007 0.0674 172.06); // #36705f
+
+  // ---- Focus ------------------------------------------------------------
+  --color-ring: oklch(0.3632 0.0739 167.54); // pine-teal, 10.33:1
+
+  // ---- Parse-log terminal ----------------------------------------------
+  --color-terminal-bg: oklch(0.2149 0.0085 240.3); // #161a1d
+  --color-terminal-text: oklch(0.8947 0.0105 247.94); // #d7dde3
+  --color-terminal-ok: oklch(0.8003 0.1821 151.71); // #4ade80
+  --color-terminal-warn: oklch(0.8369 0.1644 84.43); // #fbbf24
+  --color-terminal-dim: oklch(0.6625 0.0181 250.92); // #8b949e
+
+  // ---- Typography (max 3 families) --------------------------------------
+  // The `* Fallback` entries are the metric-adjusted local faces declared above
+  // — they must stay immediately after the real family name so the swap is
+  // width-preserving and the header's ruled baseline never moves.
+  --font-sans:
+    "Plus Jakarta Sans", "Plus Jakarta Sans Fallback", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  --font-mono:
+    "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "Cascadia Code",
+    Consolas, monospace;
+  --font-serif:
+    "Libre Caslon Text", "Libre Caslon Text Fallback", Georgia,
+    "Times New Roman", serif;
+  // ---- Type scale (golden ratio, 8pt grid) -----------------------------
+  // φ = 1.618 anchored at --text-body 16px:
+  //   16÷φ≈9.9→12, 16=16, 16×φ≈25.9→24, 16×φ²≈41.8→40, 16×φ³≈67.7→64
+  // Sizes sit on the 4px half-step (only caption 12 is a half-step; the
+  // rest are full 8pt steps). Line boxes are STRICT multiples of 8px and
+  // each leading ≈ size × φ (16→24, 24→40, 40→64, 64→104).
+  --text-caption: 0.75rem; // 12px — eyebrows, meta, fine print
+  --text-body: 1rem; // 16px floor per ui-styling-standards (anchor)
+  --text-subhead: 1.5rem; // 24px — card/section titles, lockup
+  --text-title: 2.5rem; // 40px — page statements, big numbers
+  --text-display: 4rem; // 64px — hero/icon moments
+  --leading-caption: 1rem; // 16px line box
+  --leading-body: 1.5rem; // 24px line box
+  --leading-subhead: 2.5rem; // 40px line box
+  --leading-title: 4rem; // 64px line box
+  --leading-display: 6.5rem; // 104px line box
+  --leading-tight: 2rem; // 32px — single-line headings (1.333 on 24px)
+  --tracking-eyebrow: 0.06em;
+
+  // ---- Spacing (4px base) ----------------------------------------------
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+
+  // ---- Radius -----------------------------------------------------------
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-pill: 9999px;
+
+  // ---- Elevation (soft scale) ------------------------------------------
+  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-xs: 0 1px 3px 0 oklch(0 0 0 / 0.06);
+  --shadow-sm: 0 2px 6px -1px oklch(0 0 0 / 0.07);
+  --shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.09);
+  --shadow-lg: 0 12px 28px -6px oklch(0 0 0 / 0.12);
+  --shadow-focus: 0 0 0 3px oklch(0.3632 0.0739 167.54 / 0.22);
+
+  // ---- Motion -----------------------------------------------------------
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 350ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  // ---- Layout -----------------------------------------------------------
+  --measure-max: 90rem; // 1440px, prototype main width
+  --touch-target: 2.75rem; // 44px minimum
+  --gradient-brand: linear-gradient(
+    135deg,
+    oklch(0.3767 0.1396 26.51) 0%,
+    oklch(0.3632 0.0739 167.54) 100%
+  );
+
+  // ---- Receipt Line helpers (ADDITIVE — palette frozen) -------------------
+  // Slip/ledger vocabulary for the Receipt Line redesign. Every value is an
+  // alias of an existing palette token above: no new hues, no value edits.
+  // Ratios marked are MEASURED (WCAG 2.1 — AA text 4.5:1, non-text 3:1).
+
+  // Slip headers are paper now (maroon serif ink + a rule), so the filled
+  // band's --color-slip-header-bg/-fg aliases are gone; the maroon they rode
+  // is --color-rule-strong below.
+
+  // Rules & hairlines (--color-border stays decorative dividers only).
+  --color-rule-hairline: var(--color-border); // 1.34:1, decorative edges
+  --color-rule-entry: var(--color-border-input); // 3.48:1, control boundary
+  --color-rule-strong: var(--color-secondary); // maroon on paper 10.87:1
+  // Amber focus hairline MUST sit against ink (--color-foreground):
+  // amber vs ink 7.90:1; amber alone on paper is 1.73:1 (never). Controls
+  // with no ink rule keep the global :focus-visible teal outline (10.33:1).
+  --color-rule-focus: var(--color-accent);
+
+  // Rubber-stamp treatments: tracked small caps ink on its tint.
+  --color-stamp: var(--color-secondary); // "done" — on paper 10.87:1
+  --color-stamp-bg: var(--color-secondary-soft); // maroon on tint 9.51:1
+  --color-stamp-error: var(--color-destructive); // on paper 6.57:1
+  --color-stamp-error-bg: var(--color-destructive-soft); // on tint 5.75:1
+  --color-stamp-pending: var(--color-foreground-muted); // on paper 6.00:1
+
+  // Perforation: tear-off stub / counterfoil edge (decorative).
+  --color-rule-perforation: var(--color-border);
+  --border-perforation: 1px dashed var(--color-rule-perforation);
+
+  // Rule widths. Craft-floor: borders on cards/list items/callouts/alerts
+  // never exceed 1px — --border-rule is for horizontal ruled lines only.
+  --border-hairline: 1px;
+  --border-rule: 2px;
+}
+
+// ============================================================================
+// Base
+// ============================================================================
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+}
+
+// Visually hidden but exposed to screen readers.
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// WCAG 2.4.7 / ui-styling-standards: every interactive element keeps a
+// visible focus indicator. Quasar draws its own on .q-btn, so this covers the
+// native controls (dropzone, uploaders, token gate) we render ourselves.
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// ============================================================================
+// Quasar component theme
+// ----------------------------------------------------------------------------
+// The UI is built from Quasar components (QBtn, QInput, QSelect, QFile,
+// QCard, QChip, QTable, QCheckbox, QBanner, QLinearProgress). Quasar ships a
+// dense Roboto-flavoured default that would fight the design system, so the
+// handful of rules below re-point it at our tokens. Everything NOT listed here
+// keeps Quasar's default, which is deliberate — this is a bridge, not a reskin.
+// ============================================================================
+
+// ---- Fields (QInput / QSelect) -------------------------------------------
+// Density: Quasar's default control height (~56px) overshoots the 44px touch
+// target; `dense` drops it to 40px which the 2.5rem label offset restores.
+.q-field--outlined .q-field__control {
+  // Square. The shape system is all-sharp — paper slips, ruled edges, no
+  // rounding — but this rule leaked 8px onto every field that didn't carry a
+  // local override, which is why the admin token input was the only rounded
+  // object on the page.
+  border-radius: 0;
+}
+
+.q-field--outlined .q-field__control:before {
+  border-color: var(--color-border-input); // 3.48:1 — WCAG 1.4.11
+}
+
+.q-field--outlined:hover .q-field__control:before {
+  border-color: var(--color-primary);
+}
+
+.q-field--outlined.q-field--focused .q-field__control:after {
+  border-width: 2px;
+  border-color: var(--color-primary);
+}
+
+.q-field__label,
+.q-field__native,
+.q-field__input,
+.q-field__marginal {
+  font-family: var(--font-sans);
+  // Form controls don't inherit font-size; pin them to the body token
+  // (16px also stops iOS zooming inputs on focus). The label block
+  // below re-sizes labels to caption.
+  font-size: var(--text-body);
+}
+
+.q-field__label {
+  color: var(--color-foreground-muted);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.q-field--focused .q-field__label,
+.q-field--float .q-field__label {
+  color: var(--color-primary);
+}
+
+// Quasar defaults the error text to `$negative`; ours is already WCAG AA
+// (6.57:1) but the label needs the same treatment.
+.q-field--error .q-field__control:before {
+  border-color: var(--color-destructive);
+}
+
+.q-field__messages .q-field__message--error {
+  color: var(--color-destructive);
+  font-size: var(--text-body);
+}
+
+// ---- Buttons (QBtn) --------------------------------------------------------
+.q-btn {
+  min-height: var(--touch-target);
+  // Square, same as the fields above: buttons are cut, not moulded. The
+  // slip language is paper and rules, so nothing here carries a radius.
+  border-radius: 0;
+  // Quasar defaults buttons to 14px — pin to the 16px body token.
+  font-size: var(--text-body);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.q-btn--outline::before {
+  border-color: var(--color-border-input);
+}
+
+.q-btn--outline:hover::before {
+  border-color: var(--color-primary);
+}
+
+// ---- Cards (QCard) ---------------------------------------------------------
+.q-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+}
+
+// ---- Chips (QChip) ---------------------------------------------------------
+.q-chip {
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+}
+
+// ---- File inputs (QFile) --------------------------------------------------
+// QField puts the default slot inside `.q-field__control-container`, which
+// Quasar renders as `row no-wrap`, next to `.q-field__native` (which is
+// `width: 100%`). A slot-drawn dropzone is a second 100%-wide item, so both
+// shrink to 50% in the non-wrapping row — that is what pushed the dropzone
+// into the right half of its card.
+//
+// Pulling the native out of the flow fixes it once for every QFile: it
+// stretches over the whole control (so the hidden file input still receives
+// clicks anywhere in the box) and the slot content becomes the only in-flow
+// child, spanning the full width.
+.q-file .q-field__native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  line-height: normal;
+}
+
+// Our slots draw their own dashed target box, so Quasar's drag overlay (an
+// `absolute-full` dashed outline) would double up with it. The drag state is
+// still announced by `.q-file--dnd` on the component root, which each
+// uploader styles directly.
+.q-file__dnd {
+  display: none;
+}
+
+// ---- Tables (QTable) -------------------------------------------------------
+.q-table thead tr {
+  background: var(--color-surface-sunken);
+}
+
+.q-table th {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-foreground-muted);
+}
+
+// ---- Progress (QLinearProgress) -------------------------------------------
+.q-linear-progress {
+  border-radius: var(--radius-pill);
+}
+
+// ---- Checkbox (QCheckbox) --------------------------------------------------
+// Quasar's ripple square inherits `$primary`, which is already the brand hue.
+.q-checkbox__inner--truthy {
+  color: var(--color-primary);
+}
+
+// ============================================================================
+// Quasar bridge — map Quasar's generated palette onto the OKLCH tokens so
+// components never have to know a hex value.
+// ============================================================================
+
+:root {
+  --q-primary: var(--color-primary);
+  --q-secondary: var(--color-secondary);
+  --q-accent: var(--color-accent);
+  --q-positive: var(--color-success);
+  --q-negative: var(--color-destructive);
+  --q-info: var(--color-info);
+  --q-warning: var(--color-accent);
+  --q-dark: var(--color-foreground);
+}
+
+// Quasar resets the body font; re-apply the design system stack.
+.q-body,
+body {
+  font-family: var(--font-sans);
+}
+
+// WCAG fix: amber/warning surfaces must use graphite text, never white (1.73:1).
+.bg-warning,
+.bg-amber-flame,
+.q-btn.bg-warning {
+  color: var(--color-on-accent) !important;
+}
+
+// ============================================================================
+// Portal surfaces (QMenu / QSelect dropdown / QDialog)
+// ----------------------------------------------------------------------------
+// These render into a portal on <body>, so every component's `scoped` block is
+// compiled to an attribute selector that can never match them — `scoped` is not
+// the fix here, global classes are. Without these rules the dropdowns arrive as
+// stock Material: `border-radius:4px`, a triple stacked shadow, `#fff`, and 48px
+// rows, landing on top of a design system whose every other surface is square.
+// That mismatch is what reads as clunky, so close it here.
+// ============================================================================
+
+// ---- Menus (QSelect dropdown, QMenu) ---------------------------------------
+.q-menu {
+  border-radius: 0;
+  background: var(--color-surface);
+  // One elevation, declared once — the stock triple Material stack replaced.
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+// The dropdown panel sits inside `.q-field__dropdown`, which Quasar fills with
+// `.q-field__native`. That element ships `color:#000000de` / `padding:6px 0` /
+// `line-height:28px` — Roboto-flavoured defaults that never reach app.scss.
+.q-field__dropdown {
+  background: var(--color-surface);
+  color: var(--color-foreground);
+}
+
+.q-field__dropdown .q-field__native,
+.q-field__dropdown .q-field__prefix,
+.q-field__dropdown .q-field__suffix {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--color-foreground);
+  padding: 0;
+  line-height: normal;
+}
+
+// Rows: match the 44px floor the rest of the controls hold to, and drop the
+// stock `.3s` colour transition in favour of the design system's tokens.
+.q-menu .q-item {
+  min-height: var(--touch-target);
+  padding: 0 var(--spacing-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--color-foreground);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.q-menu .q-item:hover {
+  background: var(--color-surface-sunken);
+}
+
+.q-menu .q-item--active,
+.q-menu .q-item--selected {
+  background: var(--color-surface-brand);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.q-menu .q-item__label {
+  font-size: var(--text-body);
+}
+
+// ---- Dialogs (OcrConfidenceDialog) -----------------------------------------
+// A dialog is a slip of paper on the desk: ruled edge, paper surface, no
+// rounding, one soft elevation.
+.q-dialog {
+  border-radius: 0;
+  box-shadow: var(--shadow-lg);
+}
+
+.q-dialog__inner > div {
+  border-radius: 0;
+}
+
+.q-dialog__backdrop {
+  background: var(--color-surface-inverse);
+}
+
+// ============================================================================
+// Motion
+// ----------------------------------------------------------------------------
+// The --duration-* and --ease-out tokens have been declared since the token
+// block was written but carried almost no consumers, which left Quasar's own
+// `.3s` / `ease-out` defaults doing the work. Wire the two surfaces a pointer
+// actually touches so the response time matches the rest of the system.
+// ============================================================================
+
+.q-btn {
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.q-chip {
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}

@@ -216,12 +216,13 @@ function focusGuidelines() {
 </script>
 
 <template>
-  <!-- The document workspace: RegisterWorkspace lays the bar, the phase strip
-       and the sidebar/panel columns; the sidebar carries the briefing cards
-       and the docket panel carries whichever step slip is standing. The step
-       components keep their v-if chain and every prop/emits binding exactly
-       as it was — only the frame around them is new, and PhaseStrip's
-       reachability gate is reinforced by onJump's guard. -->
+  <!-- The register workspace: RegisterWorkspace lays the masthead bar, the
+       phase strip and the sidebar/panel columns; the sidebar carries the
+       briefing cards and the docket panel carries whichever step slip is
+       standing. The step components keep their v-if chain and every
+       prop/emits binding exactly as it was — only the frame around them is
+       new, and PhaseStrip's reachability gate is reinforced by onJump's
+       guard. -->
   <div class="register-shell">
     <RegisterWorkspace
       :step="step"
@@ -232,18 +233,8 @@ function focusGuidelines() {
       <template #sidebar>
         <StepOverviewCard :eyebrow="overview.eyebrow" :title="overview.title">
           {{ overview.body }}
-          <template #status>
-            <template v-if="step === 0">
-              <span class="status-row">
-                <span class="status-row__label">PARSER ENGINE</span>
-                <span class="status-row__value">FORM5-PARSER · SIM v1.8.4</span>
-              </span>
-              <span class="status-pill">
-                <span class="status-pill__dot" aria-hidden="true">●</span>
-                {{ isParsing ? "PARSING" : "READY" }}
-              </span>
-            </template>
-            <span v-else-if="step === 1" class="status-row">
+          <template v-if="step !== 0" #status>
+            <span v-if="step === 1" class="status-row">
               <span class="status-row__label">FIELDS EXTRACTED</span>
               <span class="status-row__value">{{ filledCount }}</span>
             </span>
@@ -342,11 +333,10 @@ function focusGuidelines() {
 // ---- Sidebar status box ----------------------------------------------------
 // The overview card's machine readout (spec §6.2): mono rows in the box's
 // caption type, label muted at the left and value ink at the right — the
-// privacy card's footer split — then the parser pill: a square cell ruled in
-// the control ink, its ● dot in pine-teal (10.33:1 on paper; the word
-// carries the state, the dot only lights it). No ERROR state exists:
-// useForm5Parse has no failure path (documented deviation from spec §6.2,
-// honest per D3).
+// privacy card's footer split. The box only renders for steps that carry a
+// readout (field tally, reference ID); step 01 passes no status slot. No
+// ERROR state exists: useForm5Parse has no failure path (documented
+// deviation from spec §6.2, honest per D3).
 .status-row {
   display: flex;
   flex-wrap: wrap;
@@ -361,19 +351,6 @@ function focusGuidelines() {
   color: var(--color-foreground); // 13.69:1 on paper
   margin-left: auto;
   text-align: right;
-}
-
-// Shrink to its own label: the status grid would otherwise stretch the cell
-// across the box, turning the pill into a bar.
-.status-pill {
-  border: var(--border-hairline) solid var(--color-rule-entry);
-  color: var(--color-foreground);
-  justify-self: start;
-  padding: var(--spacing-1) var(--spacing-2);
-}
-
-.status-pill__dot {
-  color: var(--color-primary); // pine-teal dot, 10.33:1 on paper
 }
 
 // Step 02's meta: the parse-mode chip beside the field tally, one line in

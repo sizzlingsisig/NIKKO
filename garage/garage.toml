@@ -1,0 +1,34 @@
+# Garage — S3-compatible object storage for the Form 5 portal (PRD FR-5).
+# The same S3 API the backend speaks, so dev and prod are the same engine.
+# Docs: https://garagehq.deuxfleurs.fr/documentation/
+#
+# Single-node layout: one process, one data directory. This is a
+# reference config for a small self-hosted deployment; a real multi-node
+# cluster would raise replication_factor and give each node a public RPC
+# address.
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+db_engine = "lmdb"
+metadata_auto_snapshot_interval = "6h"
+
+# 1 = single node (dev/prod of a small portal). A multi-node cluster uses 3.
+replication_factor = 1
+
+compression_level = 2
+
+# Internal RPC between Garage nodes. Not exposed to the browser.
+rpc_bind_addr = "[::]:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "93c052ab803595c08844c60854d0c680678edb0f531fc8fa7672cd400244f162"  # dev only; regenerate per deployment
+
+[s3_api]
+# Must match the S3_REGION the API client signs with (default "garage").
+s3_region = "garage"
+api_bind_addr = "[::]:3900"
+root_domain = ".s3.garage"
+
+[s3_web]
+bind_addr = "[::]:3902"
+root_domain = ".web.garage"
+index = "index.html"

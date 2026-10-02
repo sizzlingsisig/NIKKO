@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form 5 Member Ingestion Portal — Frontend Prototype (Simulation)</title>
+<style>
+  :root{
+    --maroon:#7b1113; --maroon-dark:#5c0d0f; --gold:#e8c766;
+    --bg:#f4f1ec; --card:#ffffff; --ink:#1f2430; --muted:#6b7280;
+    --ok:#15803d; --err:#b91c1c; --line:#e3ded4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  header{background:linear-gradient(135deg,var(--maroon),var(--maroon-dark));color:#fff;padding:18px 32px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:20}
+  header .crest{width:46px;height:46px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:var(--gold);letter-spacing:.5px;text-align:center;line-height:1.1;flex:none}
+  header h1{font-size:19px;font-weight:600}
+  header p{font-size:12px;opacity:.85;margin-top:2px}
+  .sim-badge{background:var(--gold);color:var(--maroon-dark);font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;letter-spacing:.8px;white-space:nowrap}
+  nav{margin-left:auto;display:flex;gap:8px}
+  nav button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+  nav button:hover{background:rgba(255,255,255,.22)}
+  nav button.on{background:var(--gold);color:var(--maroon-dark);border-color:var(--gold)}
+  main{max-width:1100px;margin:0 auto;padding:32px 24px 60px}
+  .view{display:none}
+  .view.active{display:block;animation:fade .35s ease}
+  .step{display:none}
+  .step.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:22px}
+  h2{margin-bottom:6px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+  /* ---- Upload ---- */
+  #dropzone{border:2px dashed #c9b48a;border-radius:12px;background:#fbf8f1;padding:46px 24px;text-align:center;cursor:pointer;transition:.2s}
+  #dropzone:hover,#dropzone.over{border-color:var(--maroon);background:#f7efe0}
+  #dropzone .icon{font-size:44px;margin-bottom:10px}
+  #dropzone p{margin:6px 0;color:var(--muted);font-size:14px}
+  #dropzone .file-input-note{font-size:12px;color:#9ca3af}
+  #parse-log{margin-top:22px;font-family:"Cascadia Code",Consolas,monospace;font-size:13px;background:#111827;color:#d1d5db;border-radius:10px;padding:18px 20px;display:none;min-height:150px}
+  #parse-log .ok{color:#4ade80}#parse-log .warn{color:#fbbf24}#parse-log .dim{color:#6b7280}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid #4ade80;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* ---- Split screen ---- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:860px){.split{grid-template-columns:1fr}}
+  .pane-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--maroon);margin-bottom:12px}
+  #pdf-canvas-wrap{border:1px solid var(--line);border-radius:10px;background:#525659;height:560px;overflow:auto}
+  .pdf-toolbar{background:#3a3f44;color:#eee;padding:8px 14px;font-size:12px;display:flex;justify-content:space-between;position:sticky;top:0;border-radius:9px 9px 0 0}
+  #pdf-page{background:#fff;margin:18px auto;width:82%;min-height:470px;padding:30px 26px;box-shadow:0 2px 10px rgba(0,0,0,.35);font-size:11px;line-height:1.7;color:#333;position:relative}
+  #pdf-page .hl{background:rgba(232,199,102,.55);padding:0 2px;border-radius:2px;font-weight:600}
+  #pdf-page .wm{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) rotate(-32deg);font-size:44px;color:rgba(123,17,19,.07);font-weight:800;white-space:nowrap}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+  .field input,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;background:#fff;transition:.15s}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--maroon);box-shadow:0 0 0 3px rgba(123,17,19,.08)}
+  .field input.invalid,.field select.invalid{border-color:var(--err);background:#fef2f2}
+  .field input.valid,.field select.valid{border-color:var(--ok);background:#f0fdf4}
+  .err-msg{font-size:12px;color:var(--err);margin-top:4px;display:none}
+  .field.invalid-field .err-msg{display:block}
+  .field .src{font-size:11px;color:#9ca3af;margin-top:3px;font-style:italic}
+  /* signature / photo uploader */
+  .uploader{border:1.5px dashed var(--line);border-radius:10px;padding:14px;display:flex;align-items:center;gap:14px;background:#fbfaf7;cursor:pointer;transition:.2s}
+  .uploader:hover{border-color:var(--maroon)}
+  .uploader.has-file{border-style:solid;border-color:var(--ok);background:#f0fdf4}
+  .uploader .thumb{width:64px;height:64px;border-radius:8px;background:#e5e1d8;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none;font-size:24px}
+  .uploader .thumb img{width:100%;height:100%;object-fit:cover}
+  .uploader .thumb.sig{width:96px;background:#fff;border:1px solid var(--line)}
+  .uploader .thumb.sig img{object-fit:contain}
+  .uploader .u-info{font-size:13px;flex:1;min-width:0}
+  .uploader .u-info .u-name{font-weight:600;word-break:break-all}
+  .uploader .u-info .u-hint{font-size:11.5px;color:#9ca3af;margin-top:3px}
+  .uploader .u-btn{font-size:12px;font-weight:700;color:var(--maroon);white-space:nowrap}
+  .uploader input{display:none}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.two-col{grid-template-columns:1fr}}
+  .consent{display:flex;gap:10px;background:#fbf8f1;border:1px solid #e6dcc3;border-radius:10px;padding:14px;margin:6px 0 18px;font-size:13px;line-height:1.5}
+  .consent input{width:18px;height:18px;margin-top:2px;accent-color:var(--maroon);flex:none}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:9px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:.2s}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-primary{background:var(--maroon);color:#fff}
+  .btn-primary:not(:disabled):hover{background:var(--maroon-dark)}
+  .btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--muted)}
+  .btn-ghost:hover:not(:disabled){border-color:#b6b0a2;color:var(--ink)}
+  .toolbar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+  .chip{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+  .chip.ocr{background:#fef3c7;color:#92400e}
+  .chip.vector{background:#dcfce7;color:#166534}
+  /* ---- Ack ---- */
+  .ack{text-align:center;padding:20px}
+  .ack .big{font-size:52px;margin-bottom:8px}
+  .ref-id{font-family:Consolas,monospace;font-size:26px;font-weight:700;color:var(--maroon);letter-spacing:2px;background:#fbf8f1;border:1px dashed #c9b48a;border-radius:10px;display:inline-block;padding:12px 30px;margin:16px 0}
+  .ack small{color:var(--muted);display:block;margin-top:8px}
+  /* ---- Admin ---- */
+  .login-row{display:flex;gap:10px;max-width:520px}
+  .login-row input{flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;font-family:Consolas,monospace}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+  .stat{background:#fbf8f1;border:1px solid var(--line);border-radius:10px;padding:16px}
+  .stat .num{font-size:26px;font-weight:800;color:var(--maroon)}
+  .stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:#f7f3ea;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  tr.dup td{background:#fff7ed}
+  tr.latest td{background:#f0fdf4}
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  .sql-block{font-family:"Cascadia Code",Consolas,monospace;font-size:12.5px;background:#111827;color:#d1d5db;border-radius:10px;padding:16px 18px;margin:14px 0;overflow-x:auto;line-height:1.6}
+  .sql-block .kw{color:#93c5fd}.sql-block .fn{color:#fbbf24}
+  .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;margin-left:6px;vertical-align:1px}
+  .badge.latest{background:#dcfce7;color:#166534}
+  .badge.stale{background:#fee2e2;color:#991b1b}
+  .empty-note{text-align:center;color:#9ca3af;padding:30px;font-size:14px}
+  /* modal / toast */
+  #ocr-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50}
+  #ocr-modal.show{display:flex}
+  #ocr-modal .card{max-width:420px;animation:fade .25s ease;margin:0}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#111827;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:.3s;z-index:60;max-width:90vw;text-align:center}
+  .toast.show{transform:translateX(-50%);opacity:1}
+  footer{text-align:center;font-size:12px;color:#9ca3af;padding:20px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="crest">UPV</div>
+  <div>
+    <h1>Form 5 Member Ingestion Portal</h1>
+    <p>UPV Student Organization Registration — Q1 2027 Window</p>
+  </div>
+  <nav>
+    <button id="nav-register" class="on">Register</button>
+    <button id="nav-admin">Admin</button>
+  </nav>
+  <span class="sim-badge">SIMULATION</span>
+</header>
+
+<main>
+
+<!-- ==================== REGISTER VIEW ==================== -->
+<div class="view active" id="view-register">
+
+  <!-- STEP 1 -->
+  <section class="step active" id="step-upload">
+    <div class="card">
+      <h2>Step 1 · Upload your Form 5</h2>
+      <p class="sub">Drop your <strong>UP Form 5 (PDF)</strong> below. Parsing runs entirely in your browser —
+      the file never leaves this device (RA 10173).</p>
+      <div id="dropzone" tabindex="0" role="button" aria-label="Upload Form 5 PDF">
+        <div class="icon">📄</div>
+        <p><strong>Drag &amp; drop your Form 5 PDF here</strong></p>
+        <p>or click to browse files</p>
+        <p class="file-input-note">PDF only · maximum 5 MB · processed in-browser</p>
+        <input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
+      </div>
+      <div id="parse-log" aria-live="polite"></div>
+      <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="btn-sim-vector">▶ Demo: digital (text-layer) Form 5</button>
+        <button class="btn btn-ghost" id="btn-sim-raster">▶ Demo: scanned (raster) Form 5</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="step-review">
+    <div class="toolbar-row">
+      <h2>Step 2 · Verify your details</h2>
+      <span class="chip vector" id="parse-mode-chip">TEXT-LAYER PARSE</span>
+    </div>
+    <div class="split">
+      <div>
+        <div class="pane-title">Document Preview</div>
+        <div id="pdf-canvas-wrap">
+          <div class="pdf-toolbar"><span id="pdf-filename">form5.pdf</span><span>Page 1 / 1</span></div>
+          <div id="pdf-page">
+            <div class="wm">UNIVERSITY OF THE PHILIPPINES VISAYAS</div>
+            <p style="text-align:center;font-weight:700;color:var(--maroon)">UNIVERSITY OF THE PHILIPPINES VISAYAS</p>
+            <p style="text-align:center;font-size:10px">Certificate of Registration — Form 5</p>
+            <hr style="margin:8px 0;border:none;border-top:1px solid #ccc">
+            <p>Student No.: <span class="hl" data-f="student_number">2024-01234</span></p>
+            <p>Name: <span class="hl" data-f="full_name">DELA CRUZ, Juan Miguel, Santos</span></p>
+            <p>College: <span class="hl" data-f="college">CAS</span> &nbsp; Year: <span class="hl" data-f="year_level">3</span></p>
+            <p>Degree Program: <span class="hl" data-f="degree_program">BS Computer Science</span></p>
+            <p>UP Mail: <span class="hl" data-f="up_mail">jmdelacruz@up.edu.ph</span></p>
+            <hr style="margin:8px 0;border:none;border-top:1px solid #ccc">
+            <p style="color:#999;font-size:10px">[ financial assessment, home address &amp; guardian blocks intentionally not rendered — sensitive fields are discarded per privacy policy ]</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="pane-title">Review &amp; Correct</div>
+        <form id="reg-form" novalidate>
+          <div class="field">
+            <label for="f-student_number">Student Number</label>
+            <input id="f-student_number" data-f="student_number" placeholder="YYYY-XXXXX">
+            <div class="err-msg">Must match format 20YY-XXXXX (e.g., 2024-01234).</div>
+            <div class="src" id="src-student_number"></div>
+          </div>
+          <div class="field">
+            <label for="f-full_name">Full Name (Surname, First Name, Middle Name)</label>
+            <input id="f-full_name" data-f="full_name">
+            <div class="err-msg">Please enter your full legal name.</div>
+            <div class="src" id="src-full_name"></div>
+          </div>
+          <div class="field">
+            <label for="f-degree_program">Degree Program</label>
+            <input id="f-degree_program" data-f="degree_program" list="programs">
+            <datalist id="programs">
+              <option>BS Computer Science</option><option>BS Biology</option>
+              <option>BA Communication and Media Studies</option><option>BS Accountancy</option>
+              <option>BS Fisheries</option><option>BS Chemistry</option>
+            </datalist>
+            <div class="err-msg">Please enter your degree program.</div>
+            <div class="src" id="src-degree_program"></div>
+          </div>
+          <div class="two-col">
+            <div class="field">
+              <label for="f-college">College Unit</label>
+              <select id="f-college" data-f="college">
+                <option value="">— select —</option><option>SBM</option><option>CAS</option>
+                <option>CFOS</option><option>SOT</option>
+              </select>
+              <div class="err-msg">Select your college unit.</div>
+              <div class="src" id="src-college"></div>
+            </div>
+            <div class="field">
+              <label for="f-year_level">Year Level</label>
+              <select id="f-year_level" data-f="year_level">
+                <option value="">— select —</option><option>1</option><option>2</option>
+                <option>3</option><option>4</option><option>5</option><option>6</option>
+              </select>
+              <div class="err-msg">Year level must be between 1 and 6.</div>
+              <div class="src" id="src-year_level"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-up_mail">UP Mail Address</label>
+            <input id="f-up_mail" data-f="up_mail" placeholder="name@up.edu.ph">
+            <div class="err-msg">Must be a valid @up.edu.ph address.</div>
+            <div class="src" id="src-up_mail"></div>
+          </div>
+
+          <div class="pane-title" style="margin-top:6px">Identity Attachments</div>
+          <div class="field" id="field-photo">
+            <label>Photo (2×2 or recent ID photo)</label>
+            <div class="uploader" id="up-photo" role="button" tabindex="0">
+              <div class="thumb">🖼️</div>
+              <div class="u-info">
+                <div class="u-name">No photo attached</div>
+                <div class="u-hint">JPG / PNG · max 2 MB · preview only, never uploaded to server in this demo</div>
+              </div>
+              <span class="u-btn">Attach</span>
+              <input type="file" accept="image/*" hidden>
+            </div>
+            <div class="err-msg">A photo is required for the membership record.</div>
+          </div>
+          <div class="field" id="field-signature">
+            <label>Signature (on white paper, clear scan or photo)</label>
+            <div class="uploader" id="up-signature" role="button" tabindex="0">
+              <div class="thumb sig">✍️</div>
+              <div class="u-info">
+                <div class="u-name">No signature attached</div>
+                <div class="u-hint">JPG / PNG · max 2 MB · preview only, never uploaded to server in this demo</div>
+              </div>
+              <span class="u-btn">Attach</span>
+              <input type="file" accept="image/*" hidden>
+            </div>
+            <div class="err-msg">A signature image is required.</div>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" id="consent">
+            <span>I authorize <strong>UPV Student Organization</strong> to collect and process the
+            operational metadata, photograph, and signature above strictly for member roster
+            management in accordance with <strong>RA 10173</strong>.</span>
+          </label>
+
+          <button type="submit" class="btn btn-primary" id="btn-submit" disabled>Submit Registration</button>
+          <button type="button" class="btn btn-ghost" id="btn-restart" style="margin-left:10px">Start over</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="step-ack">
+    <div class="card ack">
+      <div class="big">✅</div>
+      <h2>Registration received</h2>
+      <div class="ref-id" id="ref-id">REG-2027-00000</div>
+      <p style="color:var(--muted);font-size:14px;max-width:480px;margin:0 auto">
+        Your record has been written to the organization roster. Save your reference ID —
+        it is the only confirmation you will receive.
+      </p>
+      <small>Simulated atomic response: acknowledgement + reference ID only. No stored records are ever returned by the API (FR-3.4).</small>
+      <div style="margin-top:26px">
+        <button class="btn btn-ghost" id="btn-again">Register another member</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ==================== ADMIN VIEW ==================== -->
+<div class="view" id="view-admin">
+
+  <!-- login gate -->
+  <div class="card" id="admin-login">
+    <h2>Admin Access</h2>
+    <p class="sub">Administrative routes are token-gated (FR-4.1). Enter any demo token to simulate authentication.</p>
+    <div class="login-row">
+      <input type="text" id="admin-token" placeholder="ADMIN-TOKEN-XXXX" autocomplete="off">
+      <button class="btn btn-primary" id="btn-login">Sign in</button>
+    </div>
+  </div>
+
+  <!-- dashboard -->
+  <div id="admin-dash" style="display:none">
+    <div class="card">
+      <div class="toolbar-row">
+        <h2>Membership Roster — Export Console</h2>
+        <button class="btn btn-ghost" id="btn-logout">Sign out</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="num" id="stat-raw">0</div><div class="lbl">Raw submissions</div></div>
+        <div class="stat"><div class="num" id="stat-students">0</div><div class="lbl">Unique students</div></div>
+        <div class="stat"><div class="num" id="stat-dupes">0</div><div class="lbl">Duplicate rows collapsed</div></div>
+      </div>
+
+      <div class="sql-block"><span class="kw">ATTACH</span> <span class="dim">'registrations.db'</span> <span class="kw">AS</span> rosters (sqlite);<br>
+      <span class="kw">SELECT</span> * <span class="kw">FROM</span> rosters.registrations<br>
+      <span class="kw">QUALIFY ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> student_number <span class="kw">ORDER BY</span> submitted_at <span class="kw">DESC</span>) = 1;</div>
+
+      <div class="toolbar-row">
+        <div>
+          <button class="btn btn-primary" id="btn-export-csv">⬇ Export deduplicated CSV</button>
+          <button class="btn btn-ghost" id="btn-export-xlsx" style="margin-left:8px">⬇ Export .xlsx</button>
+        </div>
+        <span class="chip vector" id="dedupe-chip">DEDUP: LATEST PER STUDENT</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">
+        Rows highlighted <strong style="color:#166534">green</strong> are the versions exported (latest <code>submitted_at</code> per student);
+        <strong style="color:#991b1b">red</strong> rows are earlier re-submissions collapsed by the window function (FR-4.3).
+        Session registrations you submit in the Register tab appear here in real time.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Student No.</th><th>Full Name</th><th>Degree Program</th><th>College</th>
+            <th>Yr</th><th>UP Mail</th><th>Submitted (UTC)</th><th>Ref</th>
+          </tr></thead>
+          <tbody id="admin-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div id="ocr-modal" role="dialog" aria-modal="true">
+  <div class="card">
+    <h3 style="margin-bottom:10px">⚠️ Low OCR confidence</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:18px">
+      Tesseract.js confidence is below the 75% threshold for this scan.
+      The extracted fields have been pre-filled — please review and correct
+      each highlighted field manually before submitting.
+    </p>
+    <button class="btn btn-primary" id="btn-ocr-ok">Review fields manually</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>Frontend prototype · Simulation only — no real PDF parsing, no network requests, no data persisted. Photo/signature previews live in browser RAM and are released after submission (FR-2.4).</footer>
+
+<script>
+(function(){
+  "use strict";
+  const MAX_PDF = 5*1024*1024, MAX_IMG = 2*1024*1024;
+  const $ = id => document.getElementById(id);
+  const delay = ms => new Promise(r=>setTimeout(r,ms));
+
+  /* ---------- mock data ---------- */
+  const MOCK_VECTOR = { student_number:"2024-01234", full_name:"DELA CRUZ, Juan Miguel, Santos",
+    degree_program:"BS Computer Science", college:"CAS", year_level:"3",
+    up_mail:"jmdelacruz@up.edu.ph", fileName:"form5_vector_demo.pdf", mode:"vector" };
+  const MOCK_RASTER = { student_number:"2023-08765", full_name:"REYES, Maria Isabel",
+    degree_program:"BA Communication and Media Studies", college:"CAS", year_level:"2",
+    up_mail:"mireyes@up.edu.ph", fileName:"form5_scanned_demo.pdf", mode:"raster", ocrConfidence:61 };
+
+  // seed roster incl. deliberate duplicates (typo re-submission scenario)
+  let seedId = 100;
+  const rows = [
+    mk("2024-01234","DELA CRUZ, Juan Miguel, S.","BS Computer Science","CAS",3,"jmdelacruz@up.edu.ph","2027-01-05T02:11:00Z","REG-2027-44102"),
+    mk("2024-01234","DELA CRUZ, Juan Migel, S.","BS Computer Science","CAS",3,"jmdelacruz@up.edu.ph","2027-01-05T06:47:00Z","REG-2027-51277"),
+    mk("2023-08765","REYES, Maria Isabel","BA Communication and Media Studies","CAS",2,"mireyes@up.edu.ph","2027-01-06T09:03:00Z","REG-2027-53018"),
+    mk("2022-00341","SANTOS, Paolo Ramirez","BS Accountancy","SBM",4,"prsantos@up.edu.ph","2027-01-06T11:22:00Z","REG-2027-53466"),
+    mk("2025-00918","LIM, Andrea Nicole, T.","BS Fisheries","CFOS",1,"anlim@up.edu.ph","2027-01-07T01:15:00Z","REG-2027-55109"),
+    mk("2023-08765","REYES, Maria Isabel","BA Communication and Media Studies","CAS",2,"mireyes@up.edu.ph","2027-01-07T03:40:00Z","REG-2027-55821"),
+  ];
+  function mk(sn,name,deg,col,yr,mail,ts,ref){
+    return { id:++seedId, student_number:sn, full_name:name, degree_program:deg,
+             college:col, year_level:yr, up_mail:mail, submitted_at:ts, ref:ref };
+  }
+
+  const RULES = {
+    student_number:{ re:/^20\d{2}-\d{5}$/ },
+    full_name:{ re:/\S/ },
+    degree_program:{ re:/\S/ },
+    college:{ re:/^(SBM|CAS|CFOS|SOT)$/ },
+    year_level:{ re:/^[1-6]$/ },
+    up_mail:{ re:/^[a-zA-Z0-9._%+-]+@up\.edu\.ph$/ }
+  };
+  const attachments = { photo:null, signature:null }; // {name,size,url} — RAM only
+
+  /* ---------- helpers ---------- */
+  function showStep(n){ document.querySelectorAll(".step").forEach(s=>s.classList.remove("active")); $("step-"+n).classList.add("active"); window.scrollTo({top:0,behavior:"smooth"}); }
+  function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),3400); }
+  function logLine(h,c){ const l=$("parse-log"); l.style.display="block"; const d=document.createElement("div"); if(c)d.className=c; d.innerHTML=h; l.appendChild(d); }
+
+  /* ---------- placeholder attachment images for demos ---------- */
+  function placeholderSig(name){
+    const c=document.createElement("canvas"); c.width=320; c.height=120; const x=c.getContext("2d");
+    x.fillStyle="#fff"; x.fillRect(0,0,320,120);
+    x.strokeStyle="#1e3a8a"; x.lineWidth=2.4; x.lineCap="round";
+    x.font="italic 42px 'Segoe Script','Brush Script MT',cursive"; x.fillStyle="#1e3a8a";
+    const short = name.split(",")[0].toLowerCase().replace(/\b\w/g,ch=>ch.toUpperCase());
+    x.fillText(short, 28, 74);
+    for(let i=0;i<14;i++){ x.beginPath(); x.moveTo(20+i*4,86+Math.sin(i)*3); x.lineTo(30+i*20,84+Math.cos(i*1.3)*4); x.stroke(); }
+    return c.toDataURL("image/png");
+  }
+  function placeholderPhoto(){
+    const c=document.createElement("canvas"); c.width=160; c.height=160; const x=c.getContext("2d");
+    const g=x.createLinearGradient(0,0,0,160); g.addColorStop(0,"#cbd5e1"); g.addColorStop(1,"#94a3b8");
+    x.fillStyle=g; x.fillRect(0,0,160,160);
+    x.fillStyle="#64748b"; x.beginPath(); x.arc(80,62,30,0,7); x.fill();          // head
+    x.beginPath(); x.arc(80,150,52,Math.PI,0); x.fill();                          // shoulders
+    return c.toDataURL("image/png");
+  }
+
+  /* ---------- attachments ---------- */
+  function wireUploader(boxId, kind){
+    const box=$(boxId), input=box.querySelector("input"), thumb=box.querySelector(".thumb"),
+          nameEl=box.querySelector(".u-name"), btnEl=box.querySelector(".u-btn");
+    const open=()=>input.click();
+    box.addEventListener("click",open);
+    box.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();open();} });
+    input.addEventListener("change",()=>{ if(input.files[0]) load(input.files[0]); });
+    function load(file){
+      if(!/^image\//.test(file.type)){ toast("Only image files (JPG/PNG) are accepted."); return; }
+      if(file.size>MAX_IMG){ toast(kind==="photo"?"Photo":"Signature"+" exceeds the 2 MB limit."); return; }
+      const reader=new FileReader();
+      reader.onload=e=>{
+        attachments[kind]={ name:file.name, size:file.size, url:e.target.result };
+        thumb.innerHTML='<img src="'+e.target.result+'" alt="'+kind+' preview">';
+        nameEl.textContent=file.name; btnEl.textContent="Replace";
+        box.classList.add("has-file");
+        $("field-"+kind).classList.remove("invalid-field");
+        updateSubmitState();
+      };
+      reader.readAsDataURL(file);
+    }
+    // demo filler
+    box.setDemo=(fileName)=>{
+      const url = kind==="photo"?placeholderPhoto():placeholderSig($("f-full_name").value||"Member");
+      attachments[kind]={ name:fileName, size:140000+Math.floor(Math.random()*80000), url };
+      thumb.innerHTML='<img src="'+url+'" alt="'+kind+' preview">';
+      nameEl.textContent=fileName; btnEl.textContent="Replace";
+      box.classList.add("has-file");
+      $("field-"+kind).classList.remove("invalid-field");
+    };
+  }
+  wireUploader("up-photo","photo");
+  wireUploader("up-signature","signature");
+
+  /* ---------- view nav ---------- */
+  $("nav-register").addEventListener("click",()=>{ setView("register"); });
+  $("nav-admin").addEventListener("click",()=>{ setView("admin"); });
+  function setView(v){
+    $("nav-register").classList.toggle("on",v==="register");
+    $("nav-admin").classList.toggle("on",v==="admin");
+    $("view-register").classList.toggle("active",v==="register");
+    $("view-admin").classList.toggle("active",v==="admin");
+    if(v==="admin" && $("admin-dash").style.display!=="none") renderAdmin();
+  }
+
+  /* ---------- upload + simulated parse ---------- */
+  const dz=$("dropzone"), fi=$("file-input");
+  dz.addEventListener("click",()=>fi.click());
+  dz.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();fi.click();} });
+  dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("over");});
+  dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
+  dz.addEventListener("drop",e=>{ e.preventDefault(); dz.classList.remove("over"); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  fi.addEventListener("change",()=>{ if(fi.files[0]) handleFile(fi.files[0]); });
+
+  function handleFile(file){
+    $("parse-log").innerHTML="";
+    if(!/\.pdf$/i.test(file.name)){ toast("Only PDF files are accepted."); return; }
+    if(file.size>MAX_PDF){ toast("File exceeds the 5 MB limit."); return; }
+    runParse({...MOCK_VECTOR, fileName:file.name});
+  }
+
+  async function runParse(mock){
+    $("parse-log").innerHTML="";
+    logLine('<span class="dim">$</span> Received <strong>'+mock.fileName+'</strong> — held in browser RAM only');
+    logLine('<span class="spinner"></span>pdfjs-dist: inspecting text streams…');
+    await delay(500);
+    if(mock.mode==="vector"){
+      logLine('<span class="ok">✓ vector text glyphs detected</span>');
+      logLine('<span class="spinner"></span>regex coordinate extraction: ^20\\d{2}-\\d{5}$ …');
+      await delay(450);
+      logLine('<span class="ok">✓ extracted 6/6 fields in '+(240+Math.random()*120).toFixed(0)+' ms <span class="dim">(NFR ≤ 400 ms)</span></span>');
+      logLine('<span class="dim">— financial assessment / home address / guardian blocks discarded —</span>');
+      await delay(350);
+    } else {
+      logLine('<span class="warn">! no text glyphs found — raster image / scan detected</span>');
+      logLine('<span class="spinner"></span>tesseract.js worker: OCR pass 1/2…'); await delay(800);
+      logLine('<span class="spinner"></span>tesseract.js worker: OCR pass 2/2 (psm 6)…'); await delay(800);
+      logLine('<span class="warn">! OCR mean confidence '+mock.ocrConfidence+'% &lt; 75% threshold</span>');
+      logLine('<span class="dim">→ prompting manual review (FR-1.3)</span>');
+    }
+    enterReview(mock);
+  }
+
+  function enterReview(mock){
+    $("pdf-filename").textContent=mock.fileName;
+    document.querySelectorAll("#pdf-page [data-f]").forEach(el=>{ el.textContent = mock[el.dataset.f] ?? ""; });
+    Object.keys(RULES).forEach(k=>{
+      const el=$("f-"+k); el.value = mock[k] ?? ""; validateField(el);
+      $("src-"+k).textContent = mock.mode==="raster" ? "source: OCR (low confidence — please verify)" : "source: text-layer extraction";
+    });
+    // demo attachments for both demo paths
+    $("up-photo").setDemo("2x2_photo_demo.jpg");
+    $("up-signature").setDemo("signature_demo.png");
+    const chip=$("parse-mode-chip");
+    if(mock.mode==="raster"){ chip.textContent="OCR FALLBACK"; chip.className="chip ocr"; $("ocr-modal").classList.add("show"); }
+    else { chip.textContent="TEXT-LAYER PARSE"; chip.className="chip vector"; }
+    updateSubmitState();
+    showStep("review");
+  }
+  $("btn-ocr-ok").addEventListener("click",()=>$("ocr-modal").classList.remove("show"));
+  $("btn-sim-vector").addEventListener("click",()=>runParse(MOCK_VECTOR));
+  $("btn-sim-raster").addEventListener("click",()=>runParse(MOCK_RASTER));
+
+  /* ---------- validation ---------- */
+  function validateField(el){
+    const r=RULES[el.dataset.f]; if(!r) return true;
+    const ok=r.re.test(el.value.trim());
+    el.classList.toggle("invalid",!ok); el.classList.toggle("valid",ok&&el.value.trim()!=="");
+    el.closest(".field").classList.toggle("invalid-field",!ok);
+    return ok;
+  }
+  document.querySelectorAll("#reg-form [data-f]").forEach(el=>{
+    el.addEventListener("input",()=>{ validateField(el); updateSubmitState(); });
+    el.addEventListener("blur",()=>{ validateField(el); updateSubmitState(); });
+  });
+  $("consent").addEventListener("change",updateSubmitState);
+  function allValid(){ return [...document.querySelectorAll("#reg-form [data-f]")].every(validateField); }
+  function updateSubmitState(){
+    const attOk = !!(attachments.photo && attachments.signature);
+    $("field-photo").classList.toggle("invalid-field", !attachments.photo && $("btn-submit").dataset.touched==="1");
+    $("field-signature").classList.toggle("invalid-field", !attachments.signature && $("btn-submit").dataset.touched==="1");
+    $("btn-submit").disabled = !(allValid() && $("consent").checked && attOk);
+  }
+
+  /* ---------- submit (simulated POST /api/register) ---------- */
+  $("reg-form").addEventListener("submit", async e=>{
+    e.preventDefault();
+    $("btn-submit").dataset.touched="1";
+    if(!allValid()){ toast("Please fix the highlighted fields."); return; }
+    if(!attachments.photo || !attachments.signature){ toast("Photo and signature are both required."); updateSubmitState(); return; }
+    if(!$("consent").checked){ toast("RA 10173 consent is required."); return; }
+
+    const btn=$("btn-submit");
+    btn.disabled=true; btn.textContent="Submitting…";
+    await delay(20+Math.random()*15); // fake WAL commit ≤35ms
+
+    const year=new Date().getFullYear();
+    const seq=String(Math.floor(Math.random()*90000)+10000);
+    $("ref-id").textContent="REG-"+year+"-"+seq;
+
+    // push into admin roster (simulated DB write)
+    rows.push(mk(
+      $("f-student_number").value.trim(), $("f-full_name").value.trim(),
+      $("f-degree_program").value.trim(), $("f-college").value,
+      parseInt($("f-year_level").value,10), $("f-up_mail").value.trim(),
+      new Date().toISOString().slice(0,19)+"Z", "REG-"+year+"-"+seq
+    ));
+    renderAdmin();
+
+    // FR-2.4: clear all volatile data incl. attachments
+    attachments.photo=null; attachments.signature=null;
+    ["up-photo","up-signature"].forEach(id=>{
+      const b=$(id); b.classList.remove("has-file");
+      b.querySelector(".thumb").textContent = id==="up-photo"?"🖼️":"✍️";
+      b.querySelector(".u-name").textContent = id==="up-photo"?"No photo attached":"No signature attached";
+      b.querySelector(".u-btn").textContent="Attach";
+      b.querySelector("input").value="";
+    });
+    btn.textContent="Submit Registration";
+    showStep("ack");
+  });
+
+  function resetAll(){
+    delete $("btn-submit").dataset.touched;
+    $("reg-form").reset();
+    document.querySelectorAll("#reg-form [data-f]").forEach(el=>{ el.classList.remove("valid","invalid"); el.closest(".field").classList.remove("invalid-field"); });
+    $("field-photo").classList.remove("invalid-field"); $("field-signature").classList.remove("invalid-field");
+    $("parse-log").innerHTML=""; $("parse-log").style.display="none";
+    updateSubmitState();
+    showStep("upload");
+  }
+  $("btn-restart").addEventListener("click",resetAll);
+  $("btn-again").addEventListener("click",resetAll);
+
+  /* ---------- admin ---------- */
+  $("btn-login").addEventListener("click",()=>{
+    const t=$("admin-token").value.trim();
+    if(!t){ toast("Enter a demo token (any value)."); return; }
+    $("admin-login").style.display="none";
+    $("admin-dash").style.display="block";
+    renderAdmin();
+    toast("Token accepted (simulated auth — FR-4.1).");
+  });
+  $("admin-token").addEventListener("keydown",e=>{ if(e.key==="Enter") $("btn-login").click(); });
+  $("btn-logout").addEventListener("click",()=>{
+    $("admin-dash").style.display="none"; $("admin-login").style.display="block"; $("admin-token").value="";
+  });
+
+  function latestPerStudent(){
+    const best={};
+    rows.forEach(r=>{ if(!best[r.student_number] || r.submitted_at>best[r.student_number].submitted_at) best[r.student_number]=r; });
+    return best;
+  }
+  function renderAdmin(){
+    const best=latestPerStudent();
+    const sorted=[...rows].sort((a,b)=> a.student_number.localeCompare(b.student_number) || b.submitted_at.localeCompare(a.submitted_at));
+    $("stat-raw").textContent=rows.length;
+    $("stat-students").textContent=Object.keys(best).length;
+    $("stat-dupes").textContent=rows.length-Object.keys(best).length;
+    $("admin-tbody").innerHTML = sorted.map(r=>{
+      const isLatest = best[r.student_number]===r;
+      return '<tr class="'+(isLatest?"latest":"dup")+'"><td>'+r.id+'</td><td>'+r.student_number+'</td><td>'+r.full_name+'</td><td>'+r.degree_program+'</td><td>'+r.college+'</td><td>'+r.year_level+'</td><td>'+r.up_mail+'</td><td>'+r.submitted_at+'</td><td>'+r.ref+(isLatest?'<span class="badge latest">exported</span>':'<span class="badge stale">collapsed</span>')+'</td></tr>';
+    }).join("") || '<tr><td colspan="9" class="empty-note">No submissions yet.</td></tr>';
+  }
+
+  $("btn-export-csv").addEventListener("click",()=>{
+    const best=latestPerStudent();
+    const header=["id","student_number","full_name","degree_program","college","year_level","up_mail","submitted_at"];
+    const lines=[header.join(",")].concat(Object.values(best).sort((a,b)=>a.student_number.localeCompare(b.student_number)).map(r=>header.map(h=>'"'+String(r[h]).replace(/"/g,'""')+'"').join(",")));
+    const blob=new Blob([lines.join("\r\n")],{type:"text/csv"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download="upv_roster_deduplicated.csv"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    toast("CSV exported — latest record per student ("+Object.keys(best).length+" rows).");
+  });
+  $("btn-export-xlsx").addEventListener("click",()=>{
+    // xlsx generation needs a real lib server-side; simulated here
+    toast("Simulated: in production DuckDB COPY … FORMAT XLSX streams the same deduplicated result.");
+  });
+
+  renderAdmin();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>inspect</title>
+<style>
+  body {
+    font: 12px/1.45 monospace;
+    background: #fff;
+    color: #000;
+    margin: 0;
+    padding: 6px;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0 0 6px;
+  }
+  iframe {
+    width: 1360px;
+    height: 640px;
+    border: 1px solid #ccc;
+  }
+</style>
+<pre id="out">polling…</pre>
+<iframe id="f" src="/#/"></iframe>
+<script>
+  var out = document.getElementById("out");
+  var started = Date.now();
+
+  function describe(el, depth) {
+    var cs = getComputedStyle(el);
+    var r = el.getBoundingClientRect();
+    return (
+      "  ".repeat(depth) +
+      (el.tagName + "." + (el.className || "").split(" ").join(".")).slice(
+        0,
+        80
+      ) +
+      "\n" +
+      "  ".repeat(depth + 1) +
+      "rect=" +
+      r.width.toFixed(0) +
+      "x" +
+      r.height.toFixed(0) +
+      " @x=" +
+      r.left.toFixed(0) +
+      " | display=" +
+      cs.display +
+      " width=" +
+      cs.width +
+      " min-width=" +
+      cs.minWidth +
+      " max-width=" +
+      cs.maxWidth +
+      " flex=" +
+      cs.flex +
+      " justify=" +
+      cs.justifyContent +
+      " align=" +
+      cs.alignItems
+    );
+  }
+
+  function tick() {
+    var d;
+    try {
+      d = document.getElementById("f").contentDocument;
+    } catch (e) {
+      out.textContent = "ERR iframe " + e.message;
+      return;
+    }
+    if (d && d.querySelector) {
+      var target = d.querySelector(".dropzone__inner");
+      if (target) {
+        var lines = ["FOUND after " + (Date.now() - started) + "ms", ""];
+        var el = target;
+        var i = 0;
+        while (el && i < 14) {
+          lines.push(describe(el, i));
+          el = el.parentElement;
+          i++;
+        }
+        out.textContent = lines.join("\n");
+        return;
+      }
+    }
+    if (Date.now() - started > 8000) {
+      var names = [];
+      if (d && d.querySelectorAll) {
+        d.querySelectorAll('[class*="drop"], [class*="file"]').forEach(
+          function (n) {
+            names.push(n.tagName + "." + n.className);
+          }
+        );
+      }
+      out.textContent =
+        "TIMEOUT — no .dropzone__inner\n" +
+        names.slice(0, 25).join("\n") +
+        "\n\nbody head:\n" +
+        (d ? d.body.innerHTML.slice(0, 900) : "no doc");
+      return;
+    }
+    out.textContent = "polling… " + (Date.now() - started) + "ms";
+    setTimeout(tick, 150);
+  }
+  setTimeout(function () {
+    tick();
+  }, 250);
+</script>

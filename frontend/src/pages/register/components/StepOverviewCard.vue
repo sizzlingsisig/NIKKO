@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // StepOverviewCard: the sidebar's per-step briefing card — filing eyebrow,
 // serif headline, body copy, and a bordered status box carrying the step's
-// machine readout (parser state, field tally, reference ID). Two props hold
+// machine readout (field tally, reference ID). Two props hold
 // the pinned per-step copy and two slots hold the body and the status rows,
 // so Task 7 swaps all four per step without the card knowing any wizard
 // state. Single-root <article>: the caller's id/tabindex fallthrough lands

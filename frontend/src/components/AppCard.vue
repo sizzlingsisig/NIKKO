@@ -1,0 +1,166 @@
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    title?: string;
+    subtitle?: string;
+    /** Renders the slip step code (e.g. "Step 1") in the header band. */
+    eyebrow?: string;
+  }>(),
+  { title: "", subtitle: "", eyebrow: "" }
+);
+</script>
+
+<template>
+  <q-card flat bordered class="app-card">
+    <!-- Slip vocabulary: the filing code rides a quiet line above the maroon
+         serif title, both on paper; subtitle and actions sit on the strip
+         below, closed by the strong maroon rule. Each block renders when
+         content arrives by prop *or* by slot, so a caller can pass rich
+         markup (e.g. a <strong> in the subtitle) without the prop default
+         of "" silently swallowing it. -->
+    <header v-if="eyebrow || title" class="app-card__band">
+      <p v-if="eyebrow" class="app-card__eyebrow">{{ eyebrow }}</p>
+      <h2 v-if="title" class="app-card__title">{{ title }}</h2>
+    </header>
+
+    <div
+      v-if="subtitle || $slots.subtitle || $slots.actions"
+      class="app-card__subhead"
+    >
+      <p v-if="subtitle || $slots.subtitle" class="app-card__subtitle"
+        ><slot name="subtitle">{{ subtitle }}</slot></p
+      >
+      <div v-if="$slots.actions" class="app-card__actions"
+        ><slot name="actions"
+      /></div>
+    </div>
+
+    <q-card-section class="app-card__body">
+      <slot />
+    </q-card-section>
+  </q-card>
+</template>
+
+<style scoped lang="scss">
+// Slip frame: square-cut white paper with hairline edges. Elevation is
+// declared once — the 1px border — so no shadow rides alongside it.
+// radius/box-shadow beat the global .q-card rounded-card defaults.
+.app-card {
+  background: var(--color-surface);
+  border: var(--border-hairline) solid var(--color-rule-hairline);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+// Keyboard focus anywhere inside the slip: ink hairline with an amber hairline
+// hard against it. Amber vs ink 7.90:1; amber alone on paper is 1.73:1 (never).
+.app-card:focus-within {
+  border-color: var(--color-foreground);
+  outline: var(--border-rule) solid var(--color-rule-focus);
+  outline-offset: 0;
+}
+
+// Paper, not slab. The header speaks the same voice as the letterhead: the
+// title is maroon serif ink on stock, a fine rule separates it from the
+// subhead row, and the strong maroon rule under that row closes the block
+// before the body opens. No filled band anywhere on the page — the navbar
+// draws maroon as rules and ink, so the cards do too.
+.app-card__band {
+  border-bottom: var(--border-hairline) solid var(--color-rule-hairline);
+  color: var(--color-foreground);
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+// Tracked small caps code (Step 1, FR-4.1) — the record's own filing data,
+// so it stays on the card as quiet muted ink rather than a headline. The
+// maroon tick in front of it is the only signal colour in the header.
+.app-card__eyebrow {
+  align-items: center;
+  color: var(--color-foreground-muted);
+  display: flex;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  gap: var(--spacing-2);
+  letter-spacing: var(--tracking-eyebrow);
+  line-height: var(--leading-caption);
+  margin: 0 0 var(--spacing-2);
+  text-transform: uppercase;
+}
+
+.app-card__eyebrow::before {
+  background: var(--color-secondary);
+  content: "";
+  flex: none;
+  height: var(--border-hairline);
+  width: var(--spacing-6);
+}
+
+// Maroon serif on paper, 10.87:1 — the same voice and colour as the NIKKO
+// lockup in the header, so a card title and the product name read as one hand.
+.app-card__title {
+  color: var(--color-secondary);
+  font-family: var(--font-serif);
+  font-size: var(--text-subhead);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+// Paper strip under the band; the strong maroon rule closes the whole
+// header block before the body starts.
+.app-card__subhead {
+  align-items: flex-start;
+  border-bottom: var(--border-rule) solid var(--color-rule-strong);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  justify-content: space-between;
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+.app-card__subtitle {
+  color: var(--color-foreground-muted);
+  flex: 1 1 18rem;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin: 0;
+  max-width: 68ch; // 60-80 character measure
+}
+
+.app-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.app-card__body {
+  padding: var(--spacing-6);
+}
+
+// Header blocks carry their own padding, so the body sits tighter beneath
+// them — and a body-only card keeps its full padding (q-card-section adds
+// none of its own).
+.app-card__band + .app-card__body,
+.app-card__subhead + .app-card__body {
+  padding-top: var(--spacing-4);
+}
+
+@media (min-width: 768px) {
+  .app-card__band {
+    padding: var(--spacing-6) var(--spacing-8);
+  }
+
+  .app-card__subhead {
+    padding: var(--spacing-4) var(--spacing-8);
+  }
+
+  .app-card__body {
+    padding: var(--spacing-8);
+  }
+
+  .app-card__band + .app-card__body,
+  .app-card__subhead + .app-card__body {
+    padding-top: var(--spacing-6);
+  }
+}
+</style>

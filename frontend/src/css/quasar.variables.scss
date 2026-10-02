@@ -1,0 +1,54 @@
+// Quasar Sass (& SCSS) Variables
+// --------------------------------------------------
+// Form5Portal brand palette — the Quasar bridge layer.
+//
+// WHY HEX AND NOT OKLCH HERE:
+// Quasar interpolates these values through Sass color functions (lighten(),
+// darken(), rgba()) when generating its component CSS, and Dart Sass cannot
+// evaluate `oklch()`. The design-token layer in `app.scss` (:root) is the
+// authoritative source and is authored in OKLCH. This file mirrors it in hex
+// so `bg-primary` / `text-negative` / `bg-warning` resolve to the same colors.
+// If you change a hex value here, change the matching `--color-*` in app.scss.
+//
+// hex -> oklch sync table (verified round-trip, 4dp):
+//   #7b1113  dark-wine     -> oklch(0.3767 0.1396 26.51)
+//   #004a36  pine-teal     -> oklch(0.3632 0.0739 167.54)
+//   #ffb81c  amber-flame   -> oklch(0.8277 0.1667 79.60)
+//   #2f2d2d  graphite      -> oklch(0.2992 0.0029 17.32)
+//   #e0f2e9  honeydew      -> oklch(0.9453 0.0224 164.51)
+//   #36705f  info          -> oklch(0.5007 0.0674 172.06)
+//   #1a7f43  success       -> oklch(0.5264 0.1287 151.79)
+//   #b42318  destructive   -> oklch(0.5003 0.1821 29.51)
+
+$dark-wine: #7b1113;
+$pine-teal: #004a36;
+$amber-flame: #ffb81c;
+$graphite: #2f2d2d;
+$honeydew: #e0f2e9;
+$info: #36705f;
+$success: #1a7f43;
+$destructive: #b42318;
+
+$primary: $pine-teal;
+$secondary: $dark-wine;
+$accent: $amber-flame;
+
+$dark: $graphite;
+$dark-page: #232121;
+
+$positive: $success;
+$negative: $destructive;
+
+$info: $info;
+$warning: $amber-flame;
+
+$gradient-brand: linear-gradient(135deg, $dark-wine 0%, $pine-teal 100%);
+
+// WCAG allowed pairs (AA normal 4.5:1, AAA 7:1) — all measured, not estimated:
+// - graphite / pine-teal / dark-wine on white or honeydew: AAA (8.9-13.7:1)
+// - white on pine-teal (10.33) / dark-wine (10.87) / graphite (13.69): AAA
+// - amber bg + graphite text (7.90): AAA — never amber bg + white text (1.73)
+// - honeydew bg + graphite / pine / wine text: AAA — never honeydew on white (1.16)
+// - info (5.77) / success (5.05) / destructive (6.57) on white: AA
+// - wine on pine (1.05): never pair
+// - border #e3ded4 on white (1.34): decorative only, never a text color

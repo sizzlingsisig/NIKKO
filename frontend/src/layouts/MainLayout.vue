@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import AppCrest from "@/components/AppCrest.vue";
@@ -11,87 +11,60 @@ const NAV_ITEMS = [
   { label: "Admin", to: "/admin" }
 ] as const;
 
-// The active route claims its segment of the foot rule: the 2px rule
-// thickens beneath the current link, gilded along its bottom edge.
-const claim = ref<HTMLElement | null>(null);
-const claimStyle = ref({ width: "0px", transform: "translateX(0px)" });
-const claimLive = ref(false);
+// One claim line serves rest, hover and focus alike: it parks under the
+// active route, slides to whichever link is being inspected, and returns
+// when the pointer or focus leaves the nav. It only reports state —
+// navigation itself stays entirely with the router links.
+const navEl = ref<HTMLElement | null>(null);
+const claimEl = ref<HTMLElement | null>(null);
+const hoveredTo = ref<string | null>(null);
+const claimArmed = ref(false);
 
-let claimPlaced = false; // first placement must snap, never slide
-let fontsSettled = false;
-let fontPoll: number | undefined; // short metric-settling poll, cleared on unmount
-
-function armClaim(): void {
-  if (!claimPlaced || !fontsSettled || claimLive.value) return;
-  window.requestAnimationFrame(() => {
-    // Recalc now: record the final geometry as this element's computed
-    // style while no transition exists, so arming .is-live starts nothing.
-    // Without this, class-add and style-write land in the same style
-    // recalc and the claim slides in from translateX(0) on every load.
-    claim.value?.getBoundingClientRect();
-    claimLive.value = true;
-  });
-}
-
-function positionClaim(): void {
-  const el = claim.value;
-  if (!el) return;
-  const rule = el.parentElement;
-  const active = document.querySelector<HTMLElement>(
-    ".letterhead__link.is-active"
-  );
-  if (!rule || !active) return; // nav not rendered/matched yet
-  const ruleBox = rule.getBoundingClientRect();
-  const linkBox = active.getBoundingClientRect();
-  claimStyle.value = {
-    width: `${linkBox.width}px`,
-    transform: `translateX(${linkBox.left - ruleBox.left}px)`
-  };
-  claimPlaced = true;
-  armClaim();
-}
-
-watch(
-  () => route.path,
-  async () => {
-    await nextTick();
-    positionClaim();
-  }
+const activeTo = computed(
+  () => NAV_ITEMS.find(item => route.path === item.to)?.to ?? null
 );
+const claimTo = computed(() => hoveredTo.value ?? activeTo.value);
 
-onMounted(() => {
-  window.addEventListener("resize", positionClaim);
-  document.fonts?.addEventListener?.("loadingdone", positionClaim);
-  // Place immediately against whatever metrics are live at first paint, so the
-  // bar is never absent while the page settles — `positionClaim` re-runs on
-  // `loadingdone` and swaps the width/translate for the real ones.
-  positionClaim();
-  // Fonts can also change metrics with no event at all (a face that resolves
-  // from cache mid-paint, or `fonts.ready` having already settled), so poll for
-  // a short window rather than trusting the event pair alone. This is a cheap
-  // read of two rects and stops the claim from ever landing against stale
-  // fallback metrics.
-  let settled = false;
-  const confirmSettled = (): void => {
-    if (settled) return;
-    settled = true;
-    window.clearInterval(poll);
-    window.clearTimeout(poll);
-    fontsSettled = true;
-    positionClaim();
-  };
-  const poll = window.setInterval(() => {
-    if (document.fonts?.status === "loaded") confirmSettled();
-  }, 120);
-  fontPoll = poll;
-  window.setTimeout(confirmSettled, 1000);
-  void document.fonts?.ready.then(confirmSettled);
+// Measured, not guessed: DESIGN.md calls for getBoundingClientRect here and
+// a re-arm after fonts settle, so the line never slides in from zero on load.
+function positionClaim(): void {
+  const nav = navEl.value;
+  const claim = claimEl.value;
+  if (!nav || !claim) return;
+
+  const to = claimTo.value;
+  const link = to
+    ? nav.querySelector<HTMLElement>(`[data-claim="${to}"]`)
+    : null;
+
+  if (!link) {
+    // No route matches the nav items — collapse instead of guessing.
+    claim.style.opacity = "0";
+    claim.style.width = "0px";
+    return;
+  }
+
+  const navBox = nav.getBoundingClientRect();
+  const linkBox = link.getBoundingClientRect();
+  // Inset by the link's own horizontal padding: the rule rides the label,
+  // not the whole touch target — the same inset the static bar had.
+  const inset = parseFloat(getComputedStyle(link).paddingLeft);
+
+  claim.style.opacity = "1";
+  claim.style.width = `${Math.max(linkBox.width - inset * 2, 0)}px`;
+  claim.style.transform = `translateX(${linkBox.left - navBox.left + inset}px)`;
+}
+
+watch(claimTo, () => {
+  void nextTick(positionClaim);
 });
 
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", positionClaim);
-  document.fonts?.removeEventListener?.("loadingdone", positionClaim);
-  if (fontPoll !== undefined) window.clearInterval(fontPoll);
+onMounted(() => {
+  positionClaim(); // placed while the transition is still disarmed
+  requestAnimationFrame(() => {
+    claimArmed.value = true;
+  });
+  void document.fonts.ready.then(positionClaim);
 });
 </script>
 
@@ -111,29 +84,34 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <nav class="letterhead__nav" aria-label="Primary">
+          <nav
+            ref="navEl"
+            class="letterhead__nav"
+            aria-label="Primary"
+            @mouseleave="hoveredTo = null"
+            @focusout="hoveredTo = null"
+          >
             <q-btn
               v-for="item in NAV_ITEMS"
               :key="item.to"
               :to="item.to"
               :label="item.label"
+              :data-claim="item.to"
               no-caps
               flat
               unelevated
               class="letterhead__link"
               :class="{ 'is-active': route.path === item.to }"
+              @mouseenter="hoveredTo = item.to"
+              @focus="hoveredTo = item.to"
+            />
+            <span
+              ref="claimEl"
+              class="letterhead__claim"
+              :class="{ 'is-armed': claimArmed }"
+              aria-hidden="true"
             />
           </nav>
-        </div>
-
-        <div class="letterhead__rule">
-          <span
-            ref="claim"
-            class="letterhead__claim"
-            :class="{ 'is-live': claimLive }"
-            :style="claimStyle"
-            aria-hidden="true"
-          />
         </div>
       </div>
     </q-header>
@@ -144,22 +122,44 @@ onBeforeUnmount(() => {
       </main>
     </q-page-container>
 
+    <!-- Footer: the colophon ledger — the maroon rule closes the
+         letterhead; three masses share the content column's margins at
+         every width: identity, wayfinding, release. -->
     <footer class="app-footer">
-      <div class="app-footer__identity">
-        <p class="app-footer__org">
-          <span class="app-footer__mark" aria-hidden="true" />
-          University of the Philippines · Office of Student Affairs &amp;
-          Institutional Registrars
-        </p>
-        <p class="app-footer__notice">
-          Frontend prototype, simulation only — no live registration.
-        </p>
-      </div>
+      <div class="app-footer__band">
+        <div class="app-footer__col">
+          <p class="app-footer__org">
+            <AppCrest :size="24" class="app-footer__seal" />
+            <span class="app-footer__lockup">
+              <span class="app-footer__name"
+                >University of the Philippines Visayas</span
+              >
+              <span class="app-footer__office">
+                Official property of KOMSAI.ORG
+              </span>
+            </span>
+          </p>
+          <p class="app-footer__copy">© 2026 KOMSAI.ORG</p>
+        </div>
 
-      <div class="app-footer__labels">
-        <span>DATA PRIVACY MANUAL</span>
-        <span>SYSTEM TERMS</span>
-        <span>STATIONERY SPEC 03-A</span>
+        <div class="app-footer__col">
+          <p class="app-footer__col-label">Navigate</p>
+          <nav class="app-footer__links" aria-label="Footer">
+            <router-link
+              v-for="item in NAV_ITEMS"
+              :key="item.to"
+              :to="item.to"
+              class="app-footer__link"
+              >{{ item.label }}</router-link
+            >
+          </nav>
+        </div>
+
+        <div class="app-footer__col">
+          <p class="app-footer__col-label">Release</p>
+          <p class="app-footer__stamp">v1.8.4</p>
+          <p class="app-footer__stamp">Last updated 2026-10-02</p>
+        </div>
       </div>
     </footer>
   </q-layout>
@@ -179,6 +179,11 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-3) var(--spacing-6);
+  // Caps the band at .app-main's measure (90rem) and centers it, so on
+  // viewports wider than 1440px the lockup and nav share the content
+  // column's left/right margins instead of staying edge-anchored.
+  max-width: var(--measure-max);
+  margin: 0 auto;
   padding: var(--spacing-4) var(--spacing-4) var(--spacing-3);
 }
 
@@ -226,9 +231,13 @@ onBeforeUnmount(() => {
   align-items: stretch;
   gap: var(--spacing-4);
   margin-left: auto;
+  // Anchors the claim line: links are the flex children, the line measures
+  // itself against this box in script.
+  position: relative;
 }
 
 .letterhead__link {
+  position: relative;
   min-height: var(--touch-target);
   // No --spacing-5 on the 4px scale (1/2/3/4/6/8/12/16): --spacing-4 (16px) is
   // the nearest step up from spacing-3. An undefined var() would invalidate
@@ -242,9 +251,7 @@ onBeforeUnmount(() => {
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   text-decoration: none;
-  transition:
-    color var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out);
+  transition: color var(--duration-fast) var(--ease-out);
 
   // Quasar's action layer has no place on printed matter.
   &::before {
@@ -252,11 +259,10 @@ onBeforeUnmount(() => {
   }
 }
 
-// Ledger tab: hover washes the whole touch target, the claim segment
-// below marks active — no underline, no weight jump.
+// Ledger tab: hover inks the label maroon — the claim line below carries the
+// rest of the feedback. No wash, no weight jump.
 .letterhead__link:hover {
   color: var(--color-secondary);
-  background: color-mix(in srgb, var(--color-secondary) 8%, transparent);
 }
 
 .letterhead__link:focus-visible {
@@ -269,42 +275,43 @@ onBeforeUnmount(() => {
   color: var(--color-secondary);
 }
 
-.letterhead__rule {
-  position: relative;
-  height: 6px;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 2px;
-    background: var(--color-secondary);
-  }
-}
-
-// Fused tab: the rule locally thickens under the active link,
-// gilded with a 1px seal-gold edge.
+// The claim line: one 2px maroon segment, gilded with a 1px seal-gold
+// hairline, serves rest, hover and focus alike — it parks under the active
+// route, slides to the link being inspected, and returns on leave. Script
+// measures the parked positions (getBoundingClientRect) and arms the
+// transition only after the first placement, per DESIGN.md, so the line
+// never slides in from zero on load. pointer-events keeps it out of the
+// links' hit testing.
 .letterhead__claim {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 6px;
   background: var(--color-secondary);
-
-  &.is-live {
-    transition:
-      transform var(--duration-base) var(--ease-out),
-      width var(--duration-base) var(--ease-out);
-  }
+  bottom: 0;
+  height: 2px;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(0);
+  width: 0;
 
   &::after {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: auto 0 0 0;
     height: 1px;
     background: var(--color-accent);
+  }
+}
+
+.letterhead__claim.is-armed {
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    width var(--duration-base) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letterhead__claim.is-armed {
+    transition: none;
   }
 }
 
@@ -314,62 +321,131 @@ onBeforeUnmount(() => {
   padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
 }
 
+// The colophon: paper white closed by the letterhead's own device — the
+// 2px maroon rule. DESIGN.md reserves 2px for horizontal ruled lines and
+// the strong rule closes a block; the claim line opened the sheet, this
+// one signs it off.
 .app-footer {
-  align-items: baseline;
-  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-top: 2px solid var(--color-secondary);
   color: var(--color-foreground-muted);
-  display: flex;
-  flex-wrap: wrap;
   font-size: var(--text-caption);
-  gap: var(--spacing-4) var(--spacing-6);
-  justify-content: space-between;
   line-height: var(--leading-caption);
-  padding: var(--spacing-6) var(--spacing-4);
   text-align: left;
 }
 
-// Left block: two-line stationery identity. Its baseline is the org line's
-// first line box, so the mark, the org text and the labels across the gap
-// all sit on one rule; the column gap carries the second line beneath.
-.app-footer__identity {
+// Capped like .letterhead__band (16px sides, 24px at ≥1024px) with the
+// room a colophon needs: three ledger masses spread across the measure —
+// identity, wayfinding, release — wrapping as a unit on narrow sheets.
+.app-footer__band {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-6) var(--spacing-8);
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: var(--measure-max);
+  padding: var(--spacing-6) var(--spacing-4) var(--spacing-8);
+}
+
+// Every column is a stack: label first, mass beneath.
+.app-footer__col {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
+  min-width: 0;
 }
 
-// Maroon square — a --spacing-3 box in secondary ink. As an empty
-// inline-block its baseline is its bottom edge, so align-items: baseline
-// on the footer parks it on the org line like a bullet on the rule.
-.app-footer__mark {
-  background: var(--color-secondary);
-  display: inline-block;
-  height: var(--spacing-3);
-  margin-right: var(--spacing-3);
-  width: var(--spacing-3);
+// Column labels in the letterhead's meta register — the same tracked caps
+// as the nav links and window line. Muted, 6.00:1 on paper.
+.app-footer__col-label {
+  color: var(--color-foreground-muted);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  margin: 0;
+  text-transform: uppercase;
 }
 
-.app-footer__org,
-.app-footer__notice {
+// Wayfinding: the two real destinations as plain router links — ink 600
+// with the header link's ink on hover/focus, 24px targets, and the active
+// route resting maroon like the header's claim line.
+.app-footer__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.app-footer__link {
+  color: var(--color-foreground);
+  font-weight: 600;
+  padding: 2px 0;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.app-footer__link:hover {
+  color: var(--color-secondary);
+}
+
+.app-footer__link:focus-visible {
+  color: var(--color-secondary);
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.app-footer__link.router-link-active {
+  color: var(--color-secondary);
+}
+
+// Copyright line: legal fine print — sans, not machine evidence.
+.app-footer__copy {
+  color: var(--color-foreground-muted);
   margin: 0;
 }
 
-// Right block: three stationery labels — plain spans, deliberately not
-// links (spec §6.6: dead links are worse than labels). Mono caption,
-// tracked caps, muted — contrast measured at Task 10.
-.app-footer__labels {
-  color: var(--color-foreground-muted);
+// Seal + two-line lockup — the official signature block. The 24px seal
+// centers against the two text rules and tints maroon like the header's.
+.app-footer__org {
+  align-items: center;
   display: flex;
-  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin: 0;
+  min-width: 0;
+}
+
+.app-footer__seal {
+  color: var(--color-secondary);
+  flex: none;
+}
+
+.app-footer__lockup {
+  display: flex;
+  flex-direction: column;
+}
+
+// Hierarchy by weight, not size: issuer leads ink 600, the office line
+// trails muted beneath (8.9:1 / 6.00:1 on paper).
+.app-footer__name {
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+
+.app-footer__office {
+  color: var(--color-foreground-muted);
+}
+
+// Release stamp: the strings a machine produced, so they earn mono —
+// tabular figures for version and date (Mono-As-Evidence). Muted,
+// 6.00:1 on paper.
+.app-footer__stamp {
   font-family: var(--font-mono);
-  gap: var(--spacing-3) var(--spacing-4);
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
 }
 
 @media (min-width: 640px) {
   .letterhead__band {
     flex-wrap: nowrap;
-    padding: var(--spacing-4) var(--spacing-8) var(--spacing-3);
   }
 
   // Restore the expansion now that the band is a single row and has room.
@@ -381,6 +457,18 @@ onBeforeUnmount(() => {
 @media (min-width: 1024px) {
   .app-main {
     padding: var(--spacing-8) var(--spacing-6) var(--spacing-12);
+  }
+
+  // Horizontal padding tracks .app-main at every breakpoint (16px below,
+  // 24px here) so the lockup and nav items share the content column's
+  // left/right margins instead of sitting 32px in.
+  .letterhead__band {
+    padding: var(--spacing-4) var(--spacing-6) var(--spacing-3);
+  }
+
+  // The footer band tracks the same horizontal pad as the header band.
+  .app-footer__band {
+    padding: var(--spacing-6) var(--spacing-6) var(--spacing-8);
   }
 }
 </style>

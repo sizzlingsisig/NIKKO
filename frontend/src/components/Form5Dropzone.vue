@@ -78,17 +78,155 @@ onMounted(nameFocusTarget);
     <div class="dropzone__inner">
       <span class="dropzone__icon" aria-hidden="true">
         <svg
-          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 120 150"
+          width="120"
+          height="150"
           fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
         >
+          <!-- Subtle document drop shadow -->
+          <defs>
+            <filter
+              id="doc-shadow"
+              x="-10%"
+              y="-10%"
+              width="125%"
+              height="125%"
+              filterUnits="userSpaceOnUse"
+            >
+              <feDropShadow
+                dx="0"
+                dy="2"
+                stdDeviation="3"
+                flood-color="#1b1c1d"
+                flood-opacity="0.08"
+              />
+            </filter>
+          </defs>
+
+          <!-- Document Paper Body with Dog-ear Corner -->
           <path
-            d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"
+            d="M 15 10 L 80 10 L 105 35 L 105 140 L 15 140 Z"
+            fill="#FFFFFF"
+            stroke="#791C24"
+            stroke-width="2"
+            stroke-linejoin="round"
+            filter="url(#doc-shadow)"
+          />
+
+          <!-- Folded Dog-ear Corner -->
+          <path
+            d="M 80 10 L 80 35 L 105 35 Z"
+            fill="#F8F3EF"
+            stroke="#791C24"
+            stroke-width="1.5"
             stroke-linejoin="round"
           />
-          <path d="M14 3v5h5" stroke-linejoin="round" />
-          <path d="M9 14h6M9 17.5h4" stroke-linecap="round" />
+
+          <!-- UP / F-5 Institutional Form Header Stamp -->
+          <text
+            x="32"
+            y="32"
+            font-family="'Plus Jakarta Sans', Arial, sans-serif"
+            font-size="11"
+            font-weight="700"
+            fill="#791C24"
+            letter-spacing="0.05em"
+          >
+            UP
+          </text>
+          <line
+            x1="58"
+            y1="20"
+            x2="58"
+            y2="34"
+            stroke="#D1CDC7"
+            stroke-width="1"
+          />
+          <text
+            x="66"
+            y="32"
+            font-family="'JetBrains Mono', monospace"
+            font-size="9"
+            font-weight="600"
+            fill="#6B6661"
+          >
+            F-5
+          </text>
+
+          <!-- Subtle Ruled Document Content Lines -->
+          <line
+            x1="30"
+            y1="46"
+            x2="90"
+            y2="46"
+            stroke="#E6E0DA"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <line
+            x1="30"
+            y1="56"
+            x2="90"
+            y2="56"
+            stroke="#E6E0DA"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <line
+            x1="30"
+            y1="66"
+            x2="75"
+            y2="66"
+            stroke="#E6E0DA"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+
+          <!-- Official Wine Maroon 2px Divider Rule -->
+          <line
+            x1="30"
+            y1="78"
+            x2="90"
+            y2="78"
+            stroke="#791C24"
+            stroke-width="1.5"
+          />
+
+          <!-- Secondary Form Spec Lines -->
+          <line
+            x1="30"
+            y1="88"
+            x2="85"
+            y2="88"
+            stroke="#EFEAE4"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+          <line
+            x1="30"
+            y1="96"
+            x2="65"
+            y2="96"
+            stroke="#EFEAE4"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+
+          <!-- PDF Badge / Plate at bottom -->
+          <rect x="36" y="112" width="48" height="18" fill="#791C24" rx="2" />
+          <text
+            x="60"
+            y="125"
+            font-family="'JetBrains Mono', 'Plus Jakarta Sans', monospace"
+            font-size="10"
+            font-weight="700"
+            fill="#FFFFFF"
+            text-anchor="middle"
+            letter-spacing="0.08em"
+          >
+            PDF
+          </text>
         </svg>
       </span>
 
@@ -115,8 +253,6 @@ onMounted(nameFocusTarget);
         <p class="dropzone__trust-line">
           <span class="dropzone__trust-dot" aria-hidden="true">●</span>
           ON-DEVICE PROCESSING
-          <span class="dropzone__trust-sep" aria-hidden="true">│</span>
-          STANDARD PDF SPEC 1.4-2.0
         </p>
         <p class="dropzone__trust-line dropzone__trust-line--stamp">
           CRS / SAIS STAMP REQUIRED
@@ -166,24 +302,24 @@ onMounted(nameFocusTarget);
   width: 100%;
 }
 
-// Emblem: the document glyph in a square stamp cell, hairline-framed like the
-// step code cells in the register stepper. Maroon because the slip world
-// rules in maroon.
+// Emblem: the Form 5 slip illustration — its dog-eared paper edge is the
+// frame now, so the hairline stamp cell that used to wrap a 24px glyph is
+// gone (at 48px none of the art's detail — F-5 stamp, rules, PDF badge —
+// could read). Colors ship inside the art (#791C24 in the slip world's
+// maroon register).
 .dropzone__icon {
   align-items: center;
-  border: var(--border-hairline) solid var(--color-rule-entry);
-  color: var(--color-secondary);
   display: flex;
   flex: none;
-  height: var(--spacing-12);
   justify-content: center;
-  width: var(--spacing-12);
 }
 
 .dropzone__icon svg {
   display: block;
-  height: var(--spacing-6);
-  width: var(--spacing-6);
+  // 120px tall = 96px wide (120:150 art): the header stamp and badge stay
+  // legible as texture without out-shouting the prompt line beneath.
+  height: 120px;
+  width: auto;
 }
 
 // Ruled prompt lines: the copy sits between two hairlines like an entry line

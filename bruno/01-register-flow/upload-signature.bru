@@ -1,0 +1,21 @@
+meta {
+  name: Upload signature.png → storage (FR-5)
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{signatureUrl}}
+  body: file
+  auth: none
+}
+
+body:file {
+  file: @file(fixtures/signature.png) @contentType(image/png)
+}
+
+tests {
+  test("storage accepts the upload", function() {
+    expect(res.status).to.be.oneOf([200, 204]);
+  });
+}

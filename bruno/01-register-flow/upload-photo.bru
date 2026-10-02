@@ -1,0 +1,21 @@
+meta {
+  name: Upload photo.png → storage (FR-5)
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{photoUrl}}
+  body: file
+  auth: none
+}
+
+body:file {
+  file: @file(fixtures/photo.png) @contentType(image/png)
+}
+
+tests {
+  test("storage accepts the upload", function() {
+    expect(res.status).to.be.oneOf([200, 204]);
+  });
+}
