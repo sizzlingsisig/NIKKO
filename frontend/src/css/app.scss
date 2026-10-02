@@ -185,19 +185,27 @@
   //   16÷φ≈9.9→12, 16=16, 16×φ≈25.9→24, 16×φ²≈41.8→40, 16×φ³≈67.7→64
   // Sizes sit on the 4px half-step (only caption 12 is a half-step; the
   // rest are full 8pt steps). Line boxes are STRICT multiples of 8px and
-  // each leading ≈ size × φ (16→24, 24→40, 40→64, 64→104).
+  // each leading ≈ size × φ (16→24, 24→40, 40→64) — the scale tops out at
+  // --text-title, with --text-title-fluid as the only display-adjacent size.
   --text-caption: 0.75rem; // 12px — eyebrows, meta, fine print
   --text-body: 1rem; // 16px floor per ui-styling-standards (anchor)
   --text-subhead: 1.5rem; // 24px — card/section titles, lockup
   --text-title: 2.5rem; // 40px — page statements, big numbers
-  --text-display: 4rem; // 64px — hero/icon moments
   --leading-caption: 1rem; // 16px line box
   --leading-body: 1.5rem; // 24px line box
   --leading-subhead: 2.5rem; // 40px line box
   --leading-title: 4rem; // 64px line box
-  --leading-display: 6.5rem; // 104px line box
   --leading-tight: 2rem; // 32px — single-line headings (1.333 on 24px)
+  --text-title-fluid: clamp(var(--text-subhead), 7vw, var(--text-title));
+  --text-numeral: 30vh; // 404 glyph — must out-scale --text-title
   --tracking-eyebrow: 0.06em;
+  // Only two weights exist. PJS is variable 200-800, but Libre Caslon ships
+  // 700-only and JetBrains Mono 400-only — a 600/800 on those faces
+  // synthesizes or falls back.
+  --weight-regular: 400;
+  --weight-bold: 700;
+  --tracking-normal: 0;
+  --leading-none: 1; // for the 404 numeral only; see DESIGN.md Typography
 
   // ---- Spacing (4px base) ----------------------------------------------
   --spacing-1: 0.25rem;
@@ -208,11 +216,14 @@
   --spacing-8: 2rem;
   --spacing-12: 3rem;
   --spacing-16: 4rem;
+  // Dimensions, not spacing. --spacing-16/-12 were being used as height/width.
+  --size-thumb: 4rem;
+  --size-ack: 4rem;
+  --size-dropzone: 3rem;
 
   // ---- Radius -----------------------------------------------------------
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
-  --radius-lg: 0.625rem;
   --radius-xl: 0.875rem;
   --radius-pill: 9999px;
 
@@ -233,11 +244,22 @@
   // ---- Layout -----------------------------------------------------------
   --measure-max: 90rem; // 1440px, prototype main width
   --touch-target: 2.75rem; // 44px minimum
-  --gradient-brand: linear-gradient(
-    135deg,
-    oklch(0.3767 0.1396 26.51) 0%,
-    oklch(0.3632 0.0739 167.54) 100%
-  );
+  --color-watermark: oklch(0.3767 0.1396 26.51 / 0.09); // 9% wine, DocumentPreview
+  // ---- Illustration (the depicted Form 5, NOT the UI) ---------------------
+  // --illus-ink is deliberately LIGHTER than --color-secondary (#791C24 vs
+  // #7b1113): printed ink on paper is not a UI accent. Keep them distinct.
+  --illus-ink: #791c24;
+  --illus-paper: #f8f3ef;
+  --illus-field: #efeae4;
+  --illus-rule: #e6e0da;
+  --illus-divider: #d1cdc7;
+  --illus-muted: #6b6661;
+  --illus-plate: #ffffff;
+  // SVG text moved out of presentation attributes into scoped CSS (Task 4),
+  // where these can be used. Genuinely below --text-caption.
+  --illus-text-xs: 0.5625rem; // 9px  — "F-5"
+  --illus-text-sm: 0.625rem; // 10px — "PDF" plate
+  --illus-text-md: 0.6875rem; // 11px — "UP" stamp
 
   // ---- Receipt Line helpers (ADDITIVE — palette frozen) -------------------
   // Slip/ledger vocabulary for the Receipt Line redesign. Every value is an
