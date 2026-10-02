@@ -298,6 +298,62 @@
   --border-rule: 2px;
 }
 
+// ---- Type roles -----------------------------------------------------------
+// Typography only. Color is surface-dependent and deliberately NOT set here;
+// pairing is documented in DESIGN.md and applied per component.
+
+.type-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-title);
+}
+
+.type-subhead {
+  font-family: var(--font-sans);
+  font-size: var(--text-subhead);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-subhead);
+}
+
+.type-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+}
+
+.type-body-strong {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-body);
+}
+
+.type-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-caption);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.type-meta {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-caption);
+}
+
+.type-data {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-caption);
+  font-variant-numeric: tabular-nums;
+}
+
 // ============================================================================
 // Base
 // ============================================================================
