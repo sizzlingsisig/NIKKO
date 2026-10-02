@@ -115,7 +115,8 @@ const display = (key: FieldKey, fields: RegistrationDraft) =>
   padding: var(--spacing-4);
   background: var(--color-surface);
   color: var(--color-foreground);
-  box-shadow: var(--shadow-lg); // elevation once: soft offset lift, no border
+  // elevation once: the sheet rests on the page, it does not float over it
+  box-shadow: var(--elevation-floating);
   font-size: var(--text-caption);
   line-height: var(--leading-caption);
   overflow: hidden;

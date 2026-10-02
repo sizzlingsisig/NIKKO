@@ -228,11 +228,13 @@
   --radius-pill: 9999px;
 
   // ---- Elevation (soft scale) ------------------------------------------
-  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
-  --shadow-xs: 0 1px 3px 0 oklch(0 0 0 / 0.06);
-  --shadow-sm: 0 2px 6px -1px oklch(0 0 0 / 0.07);
-  --shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.09);
-  --shadow-lg: 0 12px 28px -6px oklch(0 0 0 / 0.12);
+  // Ink-tinted, not black. Pure black at these alphas reads as an alpha
+  // overlay; graphite hue at low chroma reads as pigment on paper.
+  // Offsets on an 8px grid, blur = 2x offset.
+  --elevation-rest: none;
+  --elevation-raised: 0 8px 16px oklch(0.2992 0.014 40 / 0.1);
+  --elevation-floating: 0 16px 32px oklch(0.2992 0.014 40 / 0.13);
+  --elevation-overlay: 0 24px 48px oklch(0.2149 0.016 40 / 0.18);
   --shadow-focus: 0 0 0 3px oklch(0.3632 0.0739 167.54 / 0.22);
 
   // ---- Motion -----------------------------------------------------------
@@ -441,7 +443,7 @@ pre {
 // ---- Cards (QCard) ---------------------------------------------------------
 .q-card {
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--elevation-raised);
 }
 
 // ---- Chips (QChip) ---------------------------------------------------------
@@ -550,7 +552,7 @@ body {
   border-radius: 0;
   background: var(--color-surface);
   // One elevation, declared once — the stock triple Material stack replaced.
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-floating);
   border: 1px solid var(--color-border);
 }
 
@@ -605,7 +607,7 @@ body {
 // rounding, one soft elevation.
 .q-dialog {
   border-radius: 0;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--elevation-overlay);
 }
 
 .q-dialog__inner > div {
