@@ -257,6 +257,9 @@
   --illus-divider: #d1cdc7;
   --illus-muted: #6b6661;
   --illus-plate: #ffffff;
+  // The <feDropShadow> that lifts the slip off the canvas. Not part of the
+  // elevation ladder — it is artwork, and it never sees a card surface.
+  --illus-shadow: #1b1c1d;
   // SVG text moved out of presentation attributes into scoped CSS (Task 4),
   // where these can be used. Genuinely below --text-caption.
   --illus-text-xs: 0.5625rem; // 9px  — "F-5"

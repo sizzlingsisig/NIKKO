@@ -98,7 +98,7 @@ onMounted(nameFocusTarget);
                 dx="0"
                 dy="2"
                 stdDeviation="3"
-                flood-color="#1b1c1d"
+                flood-color="var(--illus-shadow)"
                 flood-opacity="0.08"
               />
             </filter>
@@ -107,8 +107,8 @@ onMounted(nameFocusTarget);
           <!-- Document Paper Body with Dog-ear Corner -->
           <path
             d="M 15 10 L 80 10 L 105 35 L 105 140 L 15 140 Z"
-            fill="#FFFFFF"
-            stroke="#791C24"
+            fill="var(--illus-plate)"
+            stroke="var(--illus-ink)"
             stroke-width="2"
             stroke-linejoin="round"
             filter="url(#doc-shadow)"
@@ -117,42 +117,23 @@ onMounted(nameFocusTarget);
           <!-- Folded Dog-ear Corner -->
           <path
             d="M 80 10 L 80 35 L 105 35 Z"
-            fill="#F8F3EF"
-            stroke="#791C24"
+            fill="var(--illus-paper)"
+            stroke="var(--illus-ink)"
             stroke-width="1.5"
             stroke-linejoin="round"
           />
 
           <!-- UP / F-5 Institutional Form Header Stamp -->
-          <text
-            x="32"
-            y="32"
-            font-family="'Plus Jakarta Sans', Arial, sans-serif"
-            font-size="11"
-            font-weight="700"
-            fill="#791C24"
-            letter-spacing="0.05em"
-          >
-            UP
-          </text>
+          <text x="32" y="32" class="dropzone__stamp">UP</text>
           <line
             x1="58"
             y1="20"
             x2="58"
             y2="34"
-            stroke="#D1CDC7"
+            stroke="var(--illus-divider)"
             stroke-width="1"
           />
-          <text
-            x="66"
-            y="32"
-            font-family="'JetBrains Mono', monospace"
-            font-size="9"
-            font-weight="600"
-            fill="#6B6661"
-          >
-            F-5
-          </text>
+          <text x="66" y="32" class="dropzone__code">F-5</text>
 
           <!-- Subtle Ruled Document Content Lines -->
           <line
@@ -160,7 +141,7 @@ onMounted(nameFocusTarget);
             y1="46"
             x2="90"
             y2="46"
-            stroke="#E6E0DA"
+            stroke="var(--illus-rule)"
             stroke-width="2"
             stroke-linecap="round"
           />
@@ -169,7 +150,7 @@ onMounted(nameFocusTarget);
             y1="56"
             x2="90"
             y2="56"
-            stroke="#E6E0DA"
+            stroke="var(--illus-rule)"
             stroke-width="2"
             stroke-linecap="round"
           />
@@ -178,7 +159,7 @@ onMounted(nameFocusTarget);
             y1="66"
             x2="75"
             y2="66"
-            stroke="#E6E0DA"
+            stroke="var(--illus-rule)"
             stroke-width="2"
             stroke-linecap="round"
           />
@@ -189,7 +170,7 @@ onMounted(nameFocusTarget);
             y1="78"
             x2="90"
             y2="78"
-            stroke="#791C24"
+            stroke="var(--illus-ink)"
             stroke-width="1.5"
           />
 
@@ -199,7 +180,7 @@ onMounted(nameFocusTarget);
             y1="88"
             x2="85"
             y2="88"
-            stroke="#EFEAE4"
+            stroke="var(--illus-field)"
             stroke-width="1.5"
             stroke-linecap="round"
           />
@@ -208,23 +189,21 @@ onMounted(nameFocusTarget);
             y1="96"
             x2="65"
             y2="96"
-            stroke="#EFEAE4"
+            stroke="var(--illus-field)"
             stroke-width="1.5"
             stroke-linecap="round"
           />
 
           <!-- PDF Badge / Plate at bottom -->
-          <rect x="36" y="112" width="48" height="18" fill="#791C24" rx="2" />
-          <text
-            x="60"
-            y="125"
-            font-family="'JetBrains Mono', 'Plus Jakarta Sans', monospace"
-            font-size="10"
-            font-weight="700"
-            fill="#FFFFFF"
-            text-anchor="middle"
-            letter-spacing="0.08em"
-          >
+          <rect
+            x="36"
+            y="112"
+            width="48"
+            height="18"
+            fill="var(--illus-ink)"
+            rx="2"
+          />
+          <text x="60" y="125" class="dropzone__plate" text-anchor="middle">
             PDF
           </text>
         </svg>
@@ -305,7 +284,7 @@ onMounted(nameFocusTarget);
 // Emblem: the Form 5 slip illustration — its dog-eared paper edge is the
 // frame now, so the hairline stamp cell that used to wrap a 24px glyph is
 // gone (at 48px none of the art's detail — F-5 stamp, rules, PDF badge —
-// could read). Colors ship inside the art (#791C24 in the slip world's
+// could read). Colors ship inside the art (--illus-ink in the slip world's
 // maroon register).
 .dropzone__icon {
   align-items: center;
@@ -320,6 +299,35 @@ onMounted(nameFocusTarget);
   // legible as texture without out-shouting the prompt line beneath.
   height: 120px;
   width: auto;
+}
+
+// SVG presentation attributes cannot read custom properties, but CSS rules
+// override presentation attributes — hence the move.
+.dropzone__stamp {
+  font-family: var(--font-sans);
+  font-size: var(--illus-text-md);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow); // was 0.05em -> sanctioned 0.06em
+  fill: var(--illus-ink);
+}
+
+.dropzone__code {
+  font-family: var(--font-mono);
+  font-size: var(--illus-text-xs);
+  font-weight: var(--weight-regular); // was 600; mono ships 400 only
+  fill: var(--illus-muted); // was #6B6661
+}
+
+.dropzone__plate {
+  font-family: var(
+    --font-mono
+  ); // was "'JetBrains Mono', 'Plus Jakarta Sans', monospace"
+  font-size: var(--illus-text-sm);
+  font-weight: var(
+    --weight-bold
+  ); // 700 retained: synthesized, but it is what renders today
+  letter-spacing: var(--tracking-eyebrow); // was 0.08em
+  fill: var(--illus-plate); // was #FFFFFF
 }
 
 // Ruled prompt lines: the copy sits between two hairlines like an entry line
