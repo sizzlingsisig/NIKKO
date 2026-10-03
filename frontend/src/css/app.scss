@@ -182,11 +182,15 @@
     "Times New Roman", serif;
   // ---- Type scale (golden ratio, 8pt grid) -----------------------------
   // φ = 1.618 anchored at --text-body 16px:
-  //   16÷φ≈9.9→12, 16=16, 16×φ≈25.9→24, 16×φ²≈41.8→40, 16×φ³≈67.7→64
+  //   16÷φ≈9.9→12, 16=16, 16×φ≈25.9→24, 16×φ²≈41.8→40
   // Sizes sit on the 4px half-step (only caption 12 is a half-step; the
-  // rest are full 8pt steps). Line boxes are STRICT multiples of 8px and
-  // each leading ≈ size × φ (16→24, 24→40, 40→64) — the scale tops out at
-  // --text-title, with --text-title-fluid as the only display-adjacent size.
+  // rest are full 8pt steps). Line boxes are multiples of 8px — 16→24,
+  // 24→32, 40→64 for the scale itself. Two declarations here are NOT
+  // φ-derived and are deliberately outside it: --leading-tight (32px on
+  // 24px = 1.333, for display-serif line boxes) and --text-numeral /
+  // --leading-none (the 404 glyph, sized off the viewport on purpose —
+  // see DESIGN.md Typography, The Absolute-Size Rule). The scale tops out
+  // at --text-title, with --text-title-fluid as the only display-adjacent size.
   --text-caption: 0.75rem; // 12px — eyebrows, meta, fine print
   --text-body: 1rem; // 16px floor per ui-styling-standards (anchor)
   --text-subhead: 1.5rem; // 24px — card/section titles, lockup
@@ -205,6 +209,11 @@
   --weight-regular: 400;
   --weight-bold: 700;
   --tracking-normal: 0;
+  // Wider tracking for the one string a user reads back to an admin: the
+  // reference ID. At 0.06em the glyphs of REG-YYYY-NNNNN crowd; at 0.1em each
+  // character is legible individually, which matters when it is being read off
+  // a screen and typed into a search box.
+  --tracking-code: 0.1em;
   --leading-none: 1; // for the 404 numeral only; see DESIGN.md Typography
 
   // ---- Spacing (4px base) ----------------------------------------------
@@ -457,7 +466,7 @@ pre {
 .q-field__label {
   color: var(--color-foreground-muted);
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
 }
@@ -486,8 +495,8 @@ pre {
   border-radius: 0;
   // Quasar defaults buttons to 14px — pin to the 16px body token.
   font-size: var(--text-body);
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-normal);
   text-transform: none;
 }
 
@@ -509,7 +518,7 @@ pre {
 .q-chip {
   border-radius: var(--radius-pill);
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
 }
 
@@ -549,7 +558,7 @@ pre {
 
 .q-table th {
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   color: var(--color-foreground-muted);
@@ -610,9 +619,12 @@ body {
 .q-menu {
   border-radius: 0;
   background: var(--color-surface);
-  // One elevation, declared once — the stock triple Material stack replaced.
+  // One elevation, declared once — the stock triple Material stack replaced,
+  // and no hairline beneath it (the Declare-Once Rule: border AND shadow is
+  // the ghost card). The 1px --color-border this used to carry measured
+  // 1.34:1, decorative only and under the 3:1 floor, so dropping it costs
+  // almost nothing visually; the shadow is what separates the panel.
   box-shadow: var(--elevation-floating);
-  border: 1px solid var(--color-border);
 }
 
 // The dropdown panel sits inside `.q-field__dropdown`, which Quasar fills with
@@ -654,7 +666,7 @@ body {
 .q-menu .q-item--selected {
   background: var(--color-surface-brand);
   color: var(--color-primary);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .q-menu .q-item__label {

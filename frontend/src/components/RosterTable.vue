@@ -112,7 +112,7 @@ const tableRows = computed(() => props.rows);
   background: var(--color-surface);
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--elevation-rest);
   font-size: var(--text-body);
   overflow-x: auto;
 }
@@ -220,11 +220,11 @@ const tableRows = computed(() => props.rows);
 
 .roster-table :deep(.q-table__bottom-nodata-icon) {
   color: var(--color-foreground-muted);
-  // 2x the body size. NOT the same as Quasar's own `font-size: 200%` this
-  // replaces: the percentage resolved against the caption-sized
-  // .q-table__bottom--nodata below (12px -> 24px), while this is 32px. The
-  // icon is a size, not a spacing step, so it is expressed off --text-body.
-  font-size: calc(var(--text-body) * 2);
+  // Doubles the caption-sized .q-table__bottom--nodata below (12px -> 24px),
+  // which is exactly what Quasar's own `font-size: 200%` resolved to. Anchored
+  // on --text-caption, not --text-body: the old value was 24px and 24px is on
+  // the scale, while 2x body would be an off-scale 32px.
+  font-size: calc(var(--text-caption) * 2);
   margin-right: var(--spacing-3);
 }
 </style>

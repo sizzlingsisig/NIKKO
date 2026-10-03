@@ -55,7 +55,7 @@ const segments = computed<Segment[]>(() => {
   background: var(--color-surface-sunken);
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--elevation-rest);
   margin: var(--spacing-4) 0;
   max-width: 100%;
 }

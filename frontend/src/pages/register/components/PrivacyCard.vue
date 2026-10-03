@@ -55,7 +55,7 @@
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-left: var(--border-rule) solid var(--color-secondary);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--elevation-rest);
   display: grid;
   gap: var(--spacing-3);
   padding: var(--spacing-6);

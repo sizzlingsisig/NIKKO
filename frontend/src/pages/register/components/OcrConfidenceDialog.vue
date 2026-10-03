@@ -41,7 +41,7 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   background: var(--color-surface);
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--elevation-rest);
   // Slip measure up to 26rem, bounded by the viewport so the notice never
   // runs off a 320px screen.
   width: min(26rem, calc(100vw - 2 * var(--spacing-4)));

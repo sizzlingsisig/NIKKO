@@ -57,18 +57,23 @@ withDefaults(
 
 // Keyboard focus anywhere inside the slip: ink hairline with an amber hairline
 // hard against it. Amber vs ink 7.90:1; amber alone on paper is 1.73:1 (never).
-// The ink half used to be the card's own `border`, so `border-color` alone
-// carried it. With the border gone that would be a no-op and the amber outline
+// The ink half used to be the card's own `border`, which paints INSIDE the
+// border box. With the border gone that would be a no-op and the amber outline
 // would sit straight on white at 1.73:1 — under the 3:1 WCAG 1.4.11 floor.
-// The hairline now rides as the outermost shadow ring instead, which puts it
-// back in exactly the pixel the border occupied: shadow ring first, amber
-// outline painted outside it.
+//
+// The ink now rides as a shadow ring, which paints OUTSIDE the border box. That
+// is not the pixel the border used to occupy, and `outline-offset: 0` would put
+// the amber over the top of it — the ink would be invisible and the amber's
+// inner edge would touch the card's own white surface. Offsetting the outline by
+// one hairline starts the amber where the ink ends, so the two are adjacent and
+// the 7.90:1 adjacency is real. Order matters: the outline paints after the
+// element's own shadows, so it must not overlap them.
 .app-card:focus-within {
   box-shadow:
     var(--elevation-raised),
     0 0 0 var(--border-hairline) var(--color-foreground);
   outline: var(--border-rule) solid var(--color-rule-focus);
-  outline-offset: 0;
+  outline-offset: var(--border-hairline);
 }
 
 // Paper, not slab. The header speaks the same voice as the letterhead: the

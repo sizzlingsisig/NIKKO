@@ -56,7 +56,7 @@ withDefaults(
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-radius: 0;
   border-top: var(--border-rule) solid var(--color-rule-strong);
-  box-shadow: none;
+  box-shadow: var(--elevation-rest);
   display: flex;
   flex-direction: column;
 }

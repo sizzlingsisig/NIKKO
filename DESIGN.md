@@ -260,9 +260,14 @@ Jakarta Sans is variable 200–800, but Libre Caslon Text ships 700-only and Jet
 Mono 400-only, so a 600 or 800 on the serif or the mono would synthesize or fall
 back. `.type-data` is locked to 400 for the same reason.
 
-**Tracking is two tokens.** `--tracking-eyebrow: 0.06em` for tracked caps, and
-`--tracking-normal: 0` everywhere else. Two raw values (`0.1em`, `0.02em`) were
-snapped onto this pair during migration.
+**Tracking is three tokens.** `--tracking-eyebrow: 0.06em` for tracked caps,
+`--tracking-normal: 0` everywhere else, and `--tracking-code: 0.1em` for the one
+string a student reads back to an admin — the reference ID, where 0.06em crowds
+the glyphs at 40px. Migration snapped seven raw values onto this set: `0.05em`
+and `0.08em` (inside the illustration, both visible) plus `0.1em` and `0.02em`
+(to `--tracking-eyebrow` and `--tracking-normal`), and three bare `0`s (to
+`--tracking-normal`). The reference ID's `0.1em` was briefly snapped to
+`--tracking-normal` and then given `--tracking-code` to keep it.
 
 ### Type roles
 Appearance is declared once, in seven global classes. Each sets **typography
@@ -295,8 +300,8 @@ this table has not been measured, and The Measured Contrast Rule applies.
 |---|---|---|
 | `.type-title` | `--color-secondary` | Maroon serif on paper, 10.87:1 |
 | `.type-subhead` | `--color-foreground` | Graphite on canvas or surface |
-| `.type-body` | `--color-foreground` | Graphite on canvas/surface; on any `*-soft` ground 11.8–12.4:1; inverse on the terminal stock |
-| `.type-body-strong` | `--color-foreground` / `--color-stamp-error` | Graphite, or destructive on its tint (5.75:1) or on paper (6.57:1) |
+| `.type-body` | `--color-foreground` / `--color-foreground-muted` | Graphite on canvas/surface; on any `*-soft` ground 11.8–12.4:1; inverse on the terminal stock; muted 6.00:1 for the console legend |
+| `.type-body-strong` | `--color-foreground` / `--color-stamp-error` / `--color-secondary` / `--color-stamp-pending` | Graphite, or destructive on its tint (5.75:1) or on paper (6.57:1); maroon 10.87:1 for the uploader action; pending-stamp 6.00:1 for a filed filename |
 | `.type-eyebrow` | `--color-foreground-muted` / `--color-secondary` | Muted on paper 6.00:1 and on sunken stock 5.30:1; maroon on paper 10.87:1, on its tint 9.51:1 |
 | `.type-meta` | `--color-foreground-muted` | As `.type-eyebrow` |
 | `.type-data` | `--color-foreground` / `--color-foreground-muted` | Mono ink on paper 13.69:1, muted for secondary rows |
@@ -306,7 +311,7 @@ this table has not been measured, and The Measured Contrast Rule applies.
 **The Golden Ratio Rule.** The scale is anchored at 16px and stepped by φ, but
 it **stops at 40px**: 12 · 16 · 24 · 40. There is deliberately no step between
 12px and 16px — the two are close enough that an intermediate size buys nothing
-and costs a decision. Line boxes are strict multiples of 8 (16/24/32/64), so
+and costs a decision. Line boxes are strict multiples of 8 (16/24/32/40/64), so
 every element lands on the grid without margin fudging. The 64px rung above the
 scale was cut with the display tokens, so nothing reaches display size except
 `--text-title-fluid`.
@@ -334,7 +339,7 @@ interface, so its values live in their own namespace and are never UI tokens:
 | `--illus-rule` | `#e6e0da` | Field rules |
 | `--illus-divider` | `#d1cdc7` | Divider rule |
 | `--illus-muted` | `#6b6661` | Mono caption on the form |
-| `--illus-plate` | `#ffffff` | PDF badge plate |
+| `--illus-plate` | `#ffffff` | PDF badge plate **and** the slip's paper body — same white, two jobs |
 | `--illus-shadow` | `#1b1c1d` | The `<feDropShadow>` flood colour |
 
 `--illus-ink` is **intentionally lighter** than `--color-secondary` (`#7b1113`):
@@ -544,11 +549,14 @@ border-left/right accents above 1px.
   1px border under this shadow is the ghost card.
 - **Focus-within:** the hairline moves into the shadow stack
   (`--elevation-raised` plus a 1px ink ring) and the 2px amber outline paints
-  outside it. That ordering is not cosmetic: the ink half used to *be* the
-  card's border, so with the border gone a bare amber outline would sit straight
-  on white at 1.73:1 — under the 3:1 WCAG 1.4.11 floor. Riding the stack puts
-  the ink back in exactly the pixel the border occupied, and the amber lands
-  against it at 7.90:1.
+  outside it, offset by one hairline. That ordering is not cosmetic: the ink
+  half used to *be* the card's border, so with the border gone a bare amber
+  outline would sit straight on white at 1.73:1 — under the 3:1 WCAG 1.4.11
+  floor. The offset is load-bearing too. A border paints *inside* the border
+  box; a shadow ring paints *outside* it, and an outline paints after the
+  element's own shadows. At `outline-offset: 0` the amber would cover the ink
+  ring entirely and the amber's inner edge would again touch white. Starting the
+  outline where the ink ends puts the two adjacent, so amber-on-ink is 7.90:1.
 - **Internal Padding:** `1.5rem` (24px) mobile, `2rem` (32px) at 768px+.
 - **Header:** a 2px maroon rule under the title band closes the block.
 

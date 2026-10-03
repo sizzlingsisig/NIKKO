@@ -45,7 +45,7 @@ defineProps<{
   background: var(--color-surface);
   border: var(--border-hairline) solid var(--color-rule-hairline);
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--elevation-rest);
   display: grid;
   gap: var(--spacing-3);
   padding: var(--spacing-6);

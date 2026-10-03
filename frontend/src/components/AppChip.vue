@@ -40,7 +40,7 @@ const stampClass = computed(() => STAMP[props.tone]);
   background: var(--color-surface-sunken);
   border: var(--border-hairline) solid var(--color-stamp-pending);
   border-radius: 0;
-  box-shadow: none; // the rule is the only elevation
+  box-shadow: var(--elevation-rest); // the rule is the only elevation
   color: var(--color-stamp-pending);
   font-size: var(--text-caption);
   font-weight: var(--weight-bold);

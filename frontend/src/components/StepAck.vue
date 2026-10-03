@@ -133,12 +133,12 @@ const isStruck = computed(() => props.refId.trim().length > 0);
   // Large, but capped so REG-YYYY-NNNNN never outgrows a 375px screen.
   font-size: var(--text-title-fluid);
   font-weight: var(--weight-bold);
-  // Tracking snapped 0.1em -> --tracking-normal (VISIBLE). This is the value
-  // itself, not an uppercase label, so the brief's rule lands it on normal —
-  // which also matches .type-data, the token system's own mono role, and
-  // carries no letter-spacing. Flagged in the report: the old 0.1em gave the
-  // code visible glyph separation, so a human may prefer --tracking-eyebrow.
-  letter-spacing: var(--tracking-normal);
+  // Kept at the original 0.1em, now named. This is the one string a student
+  // reads back to an admin, so the glyphs have to be legible individually —
+  // 0.06em crowds them at this size. The migration had snapped this to
+  // --tracking-normal on the grounds that it is not an uppercase label; that
+  // was the wrong rule for a reference ID, so the value got a token instead.
+  letter-spacing: var(--tracking-code);
   margin: var(--spacing-6) auto var(--spacing-4);
   max-width: 100%;
   overflow-wrap: anywhere;
