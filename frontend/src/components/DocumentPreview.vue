@@ -127,7 +127,7 @@ const display = (key: FieldKey, fields: RegistrationDraft) =>
   top: 42%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-32deg);
-  color: oklch(0.3767 0.1396 26.51 / 0.09);
+  color: var(--color-watermark);
   font-size: var(--text-title);
   // Snapped 800 -> 700: the ladder has no 800, and this mark is decorative and
   // aria-hidden at 9% opacity, so the step down is not perceptible.

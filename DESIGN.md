@@ -25,11 +25,6 @@ colors:
   destructive-soft: "oklch(0.9563 0.0186 21.57)"
   info: "oklch(0.5007 0.0674 172.06)"
 typography:
-  display:
-    fontFamily: "Libre Caslon Text, Georgia, Times New Roman, serif"
-    fontSize: "4rem"
-    fontWeight: 700
-    lineHeight: "6.5rem"
   title:
     fontFamily: "Libre Caslon Text, Georgia, Times New Roman, serif"
     fontSize: "2.5rem"
@@ -59,7 +54,6 @@ typography:
 rounded:
   sm: "0.375rem"
   md: "0.5rem"
-  lg: "0.625rem"
   xl: "0.875rem"
   pill: "9999px"
 spacing:
@@ -99,7 +93,7 @@ components:
   card:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.graphite}"
-    rounded: "{rounded.xl}"
+    rounded: "0"
     padding: "1.5rem"
   input:
     backgroundColor: "{colors.surface}"
@@ -145,12 +139,14 @@ it discards — rather than asserted.
 **Key Characteristics:**
 - Paper and ink: white ground, maroon rules, graphite text, one amber accent.
 - Rules, not elevation, carry hierarchy; borders never exceed 1px except
-  horizontal ruled lines (2px).
+  horizontal ruled lines (2px). Shadow is a subordinate signal on a named
+  subset of surfaces (The Named-Subset Rule), never a stack.
 - Square everything: controls and chrome are cut, not moulded.
 - Serif for institutional voice, workhorse sans for work, mono strictly for
   code, data, and measurement — never as costume.
 - Tracked small caps (0.06em, uppercase, 700) as the only eyebrow device.
-- 8pt line-box rhythm; every line height is a strict multiple of 8px.
+- 8pt line-box rhythm; every line height is a strict multiple of 8px (the 404
+  numeral is the one declared exception, and says so).
 
 ## Colors
 
@@ -197,6 +193,12 @@ A paper palette: two institution hues, one flame, and a measured neutral ladder.
 - **Destructive** `oklch(0.5003 0.1821 29.51)` / soft `…0.9563 0.0186 21.57`
 - **Info** `oklch(0.5007 0.0674 172.06)`
 
+### Artwork is not on this ladder
+The dropzone illustration paints a *document*, not this interface, so it carries
+its own `--illus-*` register — a different maroon ink included. That register is
+listed once, under **The Artwork Rule**; do not promote its values into
+`--color-*`, and do not demote them into it.
+
 ### Named Rules
 
 **The Measured Contrast Rule.** Every ratio in this system is measured, not
@@ -214,7 +216,7 @@ screen: focus, drag, and status. Its rarity is what makes it read as the seal.
 
 ## Typography
 
-**Display / Institutional Serif:** Libre Caslon Text (700), with Georgia and
+**Institutional Serif:** Libre Caslon Text (700), with Georgia and
 Times New Roman as metric-adjusted local fallbacks.
 **Body / Workhorse Sans:** Plus Jakarta Sans (variable 200–800), with Arial
 metric-matched.
@@ -229,27 +231,123 @@ All three are self-hosted (73,776 bytes, latin subset) with `size-adjust`-matche
 local fallbacks, so a font swap never reflows a ruled baseline.
 
 ### Hierarchy
-- **Display** (700, `4rem`/64px, `6.5rem`/104px): hero and icon moments only.
 - **Title** (700 serif, `2.5rem`/40px, `4rem`/64px): page statements and large
-  figures.
+  figures. The top of the scale.
+- **Fluid title** (`--text-title-fluid` = `clamp(--text-subhead, 7vw,
+  --text-title)`): the counterfoil reference number on the receipt. It is the
+  only display-*adjacent* size in the system, because there is no display step —
+  see The Golden Ratio Rule.
 - **Subhead** (700, `1.5rem`/24px, `2.5rem`/40px): card and section titles, the
-  letterhead lockup, and primary in-control instructions.
+  letterhead lockup, and primary in-control instructions. `--leading-tight`
+  (`2rem`/32px) is its single-line variant, for serif lockups that must not sit
+  in a 40px box.
 - **Body** (400, `1rem`/16px, `1.5rem`/24px): default text. 16px is a floor —
-  it also stops iOS zooming inputs on focus.
-- **Label** (700, `0.75rem`/12px, `1rem`/16px, `0.06em`, uppercase): eyebrows,
-  table headers, field labels, meta.
+  it also stops iOS zooming inputs on focus. **Body-strong** is the same
+  register at 700.
+- **Label / caption** (700, `0.75rem`/12px, `1rem`/16px line box): eyebrows at
+  `0.06em` and uppercase; meta at 400, untracked.
 - **Code / Data** (400 mono, `0.75rem`/12px): timings, filenames, reference IDs,
   byte counts — anything a machine reported, with `tabular-nums` where digits
   advance.
+- **Numeral** (`--text-numeral` = `30vh`, with `--leading-none: 1`): the 404
+  glyph alone. It must out-scale `--text-title`, and it must opt out of the
+  fixed leading or the line box collapses and pulls the glyphs into the title
+  above it. Both conditions are load-bearing.
+
+**Weights are two tokens, not a range.** `--weight-regular: 400` and
+`--weight-bold: 700`, because the shipped faces cannot honour more: Plus
+Jakarta Sans is variable 200–800, but Libre Caslon Text ships 700-only and JetBrains
+Mono 400-only, so a 600 or 800 on the serif or the mono would synthesize or fall
+back. `.type-data` is locked to 400 for the same reason.
+
+**Tracking is two tokens.** `--tracking-eyebrow: 0.06em` for tracked caps, and
+`--tracking-normal: 0` everywhere else. Two raw values (`0.1em`, `0.02em`) were
+snapped onto this pair during migration.
+
+### Type roles
+Appearance is declared once, in seven global classes. Each sets **typography
+only** — never `color` — because type is surface-independent and colour is not.
+The role goes in the template beside the existing BEM class, which keeps
+identity and layout there; the scoped rule then overrides what it must.
+
+| Role | Family | Size / leading | Weight | Tracking | Case |
+|---|---|---|---|---|---|
+| `.type-title` | serif | 40px / 64px | 700 | — | — |
+| `.type-subhead` | sans | 24px / 40px | 700 | — | — |
+| `.type-body` | sans | 16px / 24px | 400 | — | — |
+| `.type-body-strong` | sans | 16px / 24px | 700 | — | — |
+| `.type-eyebrow` | sans | 12px / 16px | 700 | 0.06em | uppercase |
+| `.type-meta` | sans | 12px / 16px | 400 | — | — |
+| `.type-data` | mono | 12px / 16px | 400 | — | `tabular-nums` |
+
+`.type-meta` and `.type-data` are defined and have no consumer yet; they exist so
+that the register is decided rather than re-spelled when those surfaces arrive.
+Global `.type-*` sits at specificity 0-1-0, so a Quasar global that lands later
+in the stylesheet wins a tie — that is the intended default-then-override
+behaviour, and it is why chips and buttons carry a scoped rule instead.
+
+### Role → allowed colours
+Because the roles set no colour, the pairing is enforced here. Ratios are the
+ones recorded in `app.scss` and the component comments; a pairing that is not on
+this table has not been measured, and The Measured Contrast Rule applies.
+
+| Role | Ink | Where it ships |
+|---|---|---|
+| `.type-title` | `--color-secondary` | Maroon serif on paper, 10.87:1 |
+| `.type-subhead` | `--color-foreground` | Graphite on canvas or surface |
+| `.type-body` | `--color-foreground` | Graphite on canvas/surface; on any `*-soft` ground 11.8–12.4:1; inverse on the terminal stock |
+| `.type-body-strong` | `--color-foreground` / `--color-stamp-error` | Graphite, or destructive on its tint (5.75:1) or on paper (6.57:1) |
+| `.type-eyebrow` | `--color-foreground-muted` / `--color-secondary` | Muted on paper 6.00:1 and on sunken stock 5.30:1; maroon on paper 10.87:1, on its tint 9.51:1 |
+| `.type-meta` | `--color-foreground-muted` | As `.type-eyebrow` |
+| `.type-data` | `--color-foreground` / `--color-foreground-muted` | Mono ink on paper 13.69:1, muted for secondary rows |
 
 ### Named Rules
 
-**The Golden Ratio Rule.** The scale is anchored at 16px and stepped by φ:
-12 · 16 · 24 · 40 · 64. Line boxes are strict multiples of 8 (16/24/40/64/104),
-so every element lands on the grid without margin fudging.
+**The Golden Ratio Rule.** The scale is anchored at 16px and stepped by φ, but
+it **stops at 40px**: 12 · 16 · 24 · 40. There is deliberately no step between
+12px and 16px — the two are close enough that an intermediate size buys nothing
+and costs a decision. Line boxes are strict multiples of 8 (16/24/32/64), so
+every element lands on the grid without margin fudging. The 64px rung above the
+scale was cut with the display tokens, so nothing reaches display size except
+`--text-title-fluid`.
 
 **The Mono-As-Evidence Rule.** Mono is for code, data, and measurement — never
 for costume. If the string did not come from a machine, it is not set in mono.
+
+**The Absolute-Size Rule.** Type sizes are absolute, because a relative size is
+not on the scale at all: `vh` tracks the viewport, `em` and `%` track the parent's
+computed font size, and the scale is authored in `rem` against a fixed 16px root.
+So the size is decided in one place and a root-font change cannot silently
+restage every heading. Two sanctioned exceptions, and no others: relative units
+inside SVG user space, where the SVG's own coordinate system is the denominator
+and relative sizing is correct by construction; and `--text-numeral`, the 404
+glyph, which is the one optical outlier that must out-scale the top rung.
+
+**The Artwork Rule.** The dropzone illustration paints a *document*, not this
+interface, so its values live in their own namespace and are never UI tokens:
+
+| Token | Value | Role in the depicted Form 5 |
+|---|---|---|
+| `--illus-ink` | `#791c24` | Letterhead ink on the slip |
+| `--illus-paper` | `#f8f3ef` | Form header wash |
+| `--illus-field` | `#efeae4` | Paper wash, field fill |
+| `--illus-rule` | `#e6e0da` | Field rules |
+| `--illus-divider` | `#d1cdc7` | Divider rule |
+| `--illus-muted` | `#6b6661` | Mono caption on the form |
+| `--illus-plate` | `#ffffff` | PDF badge plate |
+| `--illus-shadow` | `#1b1c1d` | The `<feDropShadow>` flood colour |
+
+`--illus-ink` is **intentionally lighter** than `--color-secondary` (`#7b1113`):
+printed ink on paper is not a UI accent. The two must never be "corrected" into
+each other — that would restyle the artwork to match the chrome, and the
+difference is the whole reason the namespace exists. `--illus-shadow` is not part
+of the elevation ladder; it never sees a card surface. The SVG's three labels are
+genuinely smaller than caption and are sized by `--illus-text-xs` (9px, "F-5"),
+`--illus-text-sm` (10px, the "PDF" plate) and `--illus-text-md` (11px, the "UP"
+stamp), set in scoped CSS because presentation attributes cannot read custom
+properties. One deliberate exception inside the art: the plate keeps its
+synthesized 700, because that is what renders today and snapping it would be a
+second undeclared change.
 
 ## Layout
 
@@ -257,7 +355,7 @@ for costume. If the string did not come from a machine, it is not set in mono.
 · 3 · 4` rem. **There is no `--spacing-5` (20px)**; it is intentionally absent
 and referencing it invalidates the declaration.
 
-**Container:** `--measure-max: 68.75rem` (1100px), the prototype's main width.
+**Container:** `--measure-max: 90rem` (1440px), the prototype's main width.
 
 **Touch:** `--touch-target: 2.75rem` (44px) is the minimum interactive height,
 applied to buttons, inputs, menu rows, and dropzones.
@@ -274,7 +372,46 @@ wizard starts single-column and gains its left counterfoil rail at 900px. Paired
 fields use `repeat(auto-fit, minmax(12rem, 1fr))` to self-collapse.
 
 **Rhythm:** 8pt line boxes throughout; section separation is generous while
-within-group spacing stays tight.
+within-group spacing stays tight. That grid is the *type* grid — a different 8px
+grid runs the elevation ladder's shadow offsets (see Elevation & Depth). The two
+are unrelated axes and neither contradicts the other; both rest on the 4px base.
+
+**Dimensions are not spacing.** A size — a thumbnail's width, a badge's minimum
+height, a drop target's floor — is a dimension token (`--size-thumb`,
+`--size-ack`, `--size-dropzone`), never a `--spacing-*` step. The spacing scale
+stays pure so a rhythm change can never resize a decorative tick.
+
+### Motion
+Motion is deliberately scarce. The single authored moment is the full-width
+maroon rule snapping under the lockup with the active route claiming its segment
+of it; everything else moves only to confirm a state change.
+
+- `--duration-fast: 150ms` — hover, tint, and colour shifts on buttons, chips,
+  menu rows, and nav links.
+- `--duration-base: 220ms` — structural moves that a pointer is following: the
+  claim line, the uploader boundary, the dropzone tint.
+- `--duration-slow: 350ms` — reserved, no consumer yet.
+- `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)` — the only curve. One curve means
+  everything that moves decelerates the same way, which is most of what "feels
+  consistent" is.
+
+`prefers-reduced-motion: reduce` collapses every animation and transition to
+0.01ms globally. Never suppress it, and never reach for `!important` to keep a
+transition alive against it.
+
+### Stacking
+There is **no z-index scale in the CSS**, and there should not be until something
+needs one. `z-index` appears exactly once in the whole component layer — value
+`1`, on the sticky toolbar inside `DocumentPreview`'s scroll container, which is
+internal stacking inside one component and not a UI layer. Quasar manages its own
+`$z-index-*` and is left alone.
+
+The rule when a layer is genuinely needed: **no arbitrary values.** Stacking is
+the same idea as elevation, on a second axis — a thing that is higher up should
+also be above — so the ladder is `base: 0`, `raised: 10`, `floating: 20`,
+`overlay: 30`. Declare it as custom properties at the moment the first component
+actually consumes a step, not before; four tokens with zero users is the dead-
+token problem the token layer exists to eliminate.
 
 ### Named Rules
 
@@ -283,38 +420,85 @@ never `20px`.
 
 ## Elevation & Depth
 
-The system is **flat by design**. Hierarchy is carried by rules, hairlines, and
-tonal fills — not by shadow stacks. The direction explicitly bans
-"shadow-stacked chrome," and no element may declare elevation twice: a card gets
-either a 1px border or a shadow, never both.
+Hierarchy is carried by **rules, hairlines, and tonal fills**. Shadow is a
+*subordinate* signal, rationed to a named subset of surfaces: **nothing lifts
+that should read as ruled.** A surface that is ruled — table rows, field
+separators, the 2px letterhead rule, receipt and entry lines, chips, inputs — is
+flat, and stays flat. A surface that is a piece of *paper on a desk*, or a menu
+over one, may lift, and then it lifts on the ladder below.
 
-Shadows exist but are rationed to a soft, offset, blurred scale that reads as
-paper lifting slightly off a desk:
+The ladder is four roles, not a menu of steps to pick from. Choose the role that
+matches what the surface *is*, and the value is decided:
 
-- **2XS** `0 1px 2px 0 oklch(0 0 0 / 0.05)` — resting slips.
-- **XS** `0 1px 3px 0 oklch(0 0 0 / 0.06)` — cards at rest (the default).
-- **SM** `0 2px 6px -1px oklch(0 0 0 / 0.07)` — slight lift.
-- **MD** `0 4px 12px -2px oklch(0 0 0 / 0.09)` — menus and portals.
-- **LG** `0 12px 28px -6px oklch(0 0 0 / 0.12)` — dialogs, the document sheet.
-- **Focus** `0 0 0 3px oklch(0.3632 0.0739 167.54 / 0.22)` — focus ring.
+| Role | Token | Value |
+|---|---|---|
+| rest | `--elevation-rest` | `none` |
+| raised | `--elevation-raised` | `0 8px 16px oklch(0.2992 0.014 40 / 0.1)` |
+| floating | `--elevation-floating` | `0 16px 32px oklch(0.2992 0.014 40 / 0.13)` |
+| overlay | `--elevation-overlay` | `0 24px 48px oklch(0.2149 0.016 40 / 0.18)` |
+| *(state ring, not elevation)* | `--shadow-focus` | `0 0 0 3px oklch(0.3632 0.0739 167.54 / 0.22)` |
+
+Two things about those values are load-bearing. The shadow is **ink-tinted, not
+black**: pure black at these alphas reads as an alpha overlay, while the graphite
+hue at low chroma reads as pigment settling into paper — which is the material the
+whole system is made of. And the offsets run on **their own 8px grid** (y = 8/16/24,
+blur = 2× the offset), which is *not* the type grid described under Layout. Both
+grids are true, they measure different things, and a card sitting on a 32px
+line-box grid while casting an 8px offset is correct, not contradictory.
+
+`--shadow-focus` is a **state ring, not a rung**, and it is deliberately not
+renamed into the ladder. Its measured ratio must never move: it is the
+non-text contrast guarantee for focus, and it currently has no consumer, because
+the focus indicator that actually ships is a 2px `--color-ring` outline
+(10.33:1). If you wire it up, wire it up at that value.
 
 ### Named Rules
 
 **The Declare-Once Rule.** Elevation is declared once — a border or a shadow,
-never both. A 1px border under a wide soft shadow is the ghost card.
+never both. A 1px border under a wide soft shadow is the ghost card. When a
+surface needs a shadow *and* a focus frame, the frame moves into the shadow
+stack rather than becoming a second declaration; `AppCard`'s `:focus-within` does
+exactly that.
 
 **The Ruled-Ground Rule.** Depth on paper is a horizontal rule first. The 2px
-strong rule closes a block; the 1px hairline divides; nothing lifts.
+strong rule closes a block; the 1px hairline divides; nothing lifts that should
+read as ruled.
+
+**The Named-Subset Rule.** A shadow is permitted only where it is listed here,
+and everywhere else the answer is no lift — `--elevation-rest`, which is what a
+ruled surface spells `box-shadow: none`. The named subset is short and it is
+closed:
+
+- `AppCard` — the shared slip primitive — carries `--elevation-raised`.
+- `.q-card` globally takes `--elevation-raised`; this only reaches Quasar cards
+  no renderer has overridden, since scoped rules beat the global.
+- The document sheet in `DocumentPreview` carries `--elevation-floating`: paper
+  resting on the page, not floating over it. The *window* around it keeps a
+  hairline and no shadow.
+- `.q-menu` (including QSelect dropdowns) carries `--elevation-floating`.
+- `.q-dialog` carries `--elevation-overlay`.
+- Reserved for a drag-target or sticky bar, with no consumer today: the sticky
+  toolbar rides a hairline and a paper ground, and the dropzone's drag state
+  rides `background` + `border-color`.
+
+Everything outside that list stays ruled — table row rules, field separators, the
+2px letterhead rule, receipt and entry lines, chips, inputs, and `StatTile`. At
+admin-table density a shadow reads as noise, which is why the tile that repeats
+most is the one that stays flat.
 
 ## Shapes
 
-**Square by default.** Controls, buttons, fields, menus, and dialogs are cut,
-not moulded — `border-radius: 0`. The only rounded forms are paper documents and
-chips:
+**Square by default.** Controls, buttons, fields, menus, dialogs, and the cards
+themselves are cut, not moulded — `border-radius: 0`. The rounded forms that
+remain are functional marks, not softened containers:
 
-- `0` — buttons, inputs, menus, dialogs, dropzones (the default for controls).
-- `0.375rem` — `--radius-sm`, focus rings.
-- `0.875rem` — `--radius-xl`, cards and the document sheet (paper corners).
+- `0` — buttons, inputs, menus, dialogs, dropzones, the cards themselves, and
+  the document sheet. This is the default for controls *and* for containers.
+- `0.375rem` — `--radius-sm`, the focus ring's corner.
+- `0.5rem` — `--radius-md`, the one inset stamp in the OCR dialog.
+- `0.875rem` — `--radius-xl`, the **global `.q-card` default only**. Every card
+  renderer in the app overrides it to `0`, so nothing in the shipped UI is
+  rounded at this step; it survives as the Quasar bridge, not as a shape.
 - `9999px` — `--radius-pill`, chips and the linear-progress bar only.
 
 **Borders:** 1px is the default and the ceiling for anything that is not a
@@ -351,10 +535,20 @@ border-left/right accents above 1px.
   transparent border so focus never shifts layout.
 
 ### Cards / Containers
-- **Corner Style:** `0.875rem` (`--radius-xl`).
+- **Corner Style:** `0` — `AppCard` is square-cut, deliberately, and overrides
+  the global `.q-card` radius. (`.q-card` itself keeps `0.875rem` for Quasar
+  cards outside `AppCard`; those are the only consumers of `--radius-xl`.)
 - **Background:** `--color-surface` (paper white).
-- **Border:** 1px `--color-border` on rest; hover inks the border to graphite.
-- **Elevation:** `--shadow-xs` — and no border + shadow stacking.
+- **Border:** none at rest. The lift *is* the frame — see Elevation.
+- **Elevation:** `--elevation-raised`, declared once. No hairline beneath it; a
+  1px border under this shadow is the ghost card.
+- **Focus-within:** the hairline moves into the shadow stack
+  (`--elevation-raised` plus a 1px ink ring) and the 2px amber outline paints
+  outside it. That ordering is not cosmetic: the ink half used to *be* the
+  card's border, so with the border gone a bare amber outline would sit straight
+  on white at 1.73:1 — under the 3:1 WCAG 1.4.11 floor. Riding the stack puts
+  the ink back in exactly the pixel the border occupied, and the amber lands
+  against it at 7.90:1.
 - **Internal Padding:** `1.5rem` (24px) mobile, `2rem` (32px) at 768px+.
 - **Header:** a 2px maroon rule under the title band closes the block.
 
@@ -389,12 +583,15 @@ before reaching for a card.
   outlines.
 - **Do** set every line box to a multiple of 8px and every control to at least
   44px tall.
+- **Do** set appearance from the seven `.type-*` roles, and colour from the role
+  → colour table, rather than hand-writing a bundle in a scoped block.
 - **Do** put machine output (timings, filenames, IDs, byte counts) in mono with
   `tabular-nums`.
 - **Do** keep amber under or beside graphite, never alone and never under white.
 - **Do** measure contrast before shipping a pairing; AA is the floor, AAA is
   the norm.
-- **Do** declare elevation once — border *or* shadow.
+- **Do** declare elevation once — border *or* shadow — and pick the ladder role
+  that matches what the surface is.
 - **Do** write corrective error copy that names the problem and the way out.
 - **Do** build hierarchy with rules and whitespace before adding another
   container.
@@ -404,8 +601,16 @@ before reaching for a card.
 - **Don't** use `--spacing-5` (20px) — it does not exist in the scale.
 - **Don't** use mono as decoration for anything that is not code, data, or a
   measurement.
-- **Don't** add gradients, glass, blur, pills on containers, or stacked shadows.
+- **Don't** add gradients, glass, blur, pills on containers, or a stack of
+  shadows. One ladder role per surface, never two.
 - **Don't** put a border and a shadow on the same element.
+- **Don't** lift a ruled surface to solve a hierarchy problem — a rule will do.
+- **Don't** size type in `vh`, `%`, or `em` outside SVG user space, and don't
+  reach above the top of the scale to get display type.
+- **Don't** reach into `--illus-*` for a UI colour, or "correct" `--illus-ink`
+  into `--color-secondary`; the illustration is not this palette.
+- **Don't** invent a z-index value; take the next step on the layer ladder, and
+  declare the token only when something consumes it.
 - **Don't** render state through color alone — pair it with a glyph, icon, or
   label.
 - **Don't** hide focus (`outline: none`) or suppress `prefers-reduced-motion`.
