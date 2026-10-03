@@ -76,7 +76,7 @@ onMounted(() => {
           <div class="letterhead__identity">
             <AppCrest :size="40" class="letterhead__seal" />
             <div class="letterhead__titles">
-              <h1 class="letterhead__name">NIKKO</h1>
+              <h1 class="letterhead__name type-subhead-serif">NIKKO</h1>
               <p class="letterhead__window type-eyebrow">
                 Nexus for Identity-verification, Key-signatures, and Kompiled
                 Organization-lists
@@ -200,14 +200,14 @@ onMounted(() => {
 }
 
 .letterhead__name {
-  font-family: var(--font-serif);
-  font-size: var(--text-subhead);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
-  // Snapped 0.02em -> --tracking-normal in the token migration. It is the
-  // wordmark, not an eyebrow: it keeps its own scoped rule, because
-  // .type-eyebrow would drop it to caption sans.
-  letter-spacing: var(--tracking-normal);
+  // Family, size, weight and the tighter serif leading come from
+  // .type-subhead-serif. The wordmark keeps its own rule for the two
+  // declarations no role covers: it is set in caps like an eyebrow but
+  // tracked normal, because a letter-spaced wordmark reads as a label
+  // rather than a lockup.
+  letter-spacing: var(
+    --tracking-normal
+  ); // snapped 0.02em in the token migration
   text-transform: uppercase;
   color: var(--color-secondary);
   margin: 0;

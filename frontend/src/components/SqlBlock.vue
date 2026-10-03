@@ -40,7 +40,7 @@ const segments = computed<Segment[]>(() => {
        statement on sunken stock. figure/figcaption because <pre> may only
        contain phrasing content — the caption cannot live inside it. -->
   <figure class="sql-block">
-    <figcaption class="sql-block__caption">SQL</figcaption>
+    <figcaption class="sql-block__caption type-eyebrow-mono"> SQL </figcaption>
     <pre class="sql-block__code"><code><span
       v-for="(segment, index) in segments"
       :key="index"
@@ -62,23 +62,15 @@ const segments = computed<Segment[]>(() => {
 
 // Ruled caption, same idiom as the slip header: maroon ink on the sunken
 // stock, closed by the strong maroon rule the ledger uses. Mono because the
-// caption is a field label for the statement beneath it.
-//
-// No .type-eyebrow here, deliberately: that role sets font-family to the sans
-// stack, which would drop the mono this caption earns as the statement's
-// field label. The register is spelled out instead.
+// caption is a field label for the statement beneath it — which is exactly
+// what .type-eyebrow-mono is for. (This register was spelled out by hand
+// before that role existed.)
 .sql-block__caption {
   background: var(--color-surface-sunken);
   border-bottom: var(--border-rule) solid var(--color-secondary);
   color: var(--color-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   margin: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  text-transform: uppercase;
 }
 
 // SQL is code/data — mono stack, ledger hairline rules, no costume.

@@ -282,8 +282,30 @@ identity and layout there; the scoped rule then overrides what it must.
 | `.type-body` | sans | 16px / 24px | 400 | — | — |
 | `.type-body-strong` | sans | 16px / 24px | 700 | — | — |
 | `.type-eyebrow` | sans | 12px / 16px | 700 | 0.06em | uppercase |
+| `.type-eyebrow-mono` | mono | 12px / 16px | 700 | 0.06em | uppercase |
+| `.type-subhead-serif` | serif | 24px / **32px** | 700 | — | — |
 | `.type-meta` | sans | 12px / 16px | 400 | — | — |
 | `.type-data` | mono | 12px / 16px | 400 | — | `tabular-nums` |
+
+The last two are family variants: a role whose face differs from its sans
+default, for the cases "an eyebrow set in mono" and "a subhead in the serif
+voice". Without them those surfaces fall back to hand-written CSS — which is
+how two mono eyebrows once shipped at weight 400 while three of their siblings
+shipped at 700. `.type-eyebrow-mono` is an eyebrow, not a flavour of
+`.type-data`: it is bold, tracked and uppercase, where `.type-data` is the
+plain mono-as-evidence register.
+
+`.type-subhead-serif` takes `--leading-tight` (32px), not `.type-subhead`'s
+40px. **That difference is deliberate** — serif wants less leading than sans
+at the same size — and should not be harmonised.
+
+A hand-written typography rule is an exception and must say why, in a comment
+at the rule. The common reasons: `.type-*` is a Quasar global that would lose
+the specificity tie, the target is a Quasar internal reached through `:deep()`,
+the face would be destroyed by the role's `font-family`, or the weight is
+deliberately absent (mono labels stay at 400 — the face ships no bold, so a 700
+fakes one). A silent hand-written rule is the failure mode this table exists to
+prevent.
 
 `.type-meta` and `.type-data` are defined and have no consumer yet; they exist so
 that the register is decided rather than re-spelled when those surfaces arrive.
@@ -303,6 +325,8 @@ this table has not been measured, and The Measured Contrast Rule applies.
 | `.type-body` | `--color-foreground` / `--color-foreground-muted` | Graphite on canvas/surface; on any `*-soft` ground 11.8–12.4:1; inverse on the terminal stock; muted 6.00:1 for the console legend |
 | `.type-body-strong` | `--color-foreground` / `--color-stamp-error` / `--color-secondary` / `--color-stamp-pending` | Graphite, or destructive on its tint (5.75:1) or on paper (6.57:1); maroon 10.87:1 for the uploader action; pending-stamp 6.00:1 for a filed filename |
 | `.type-eyebrow` | `--color-foreground-muted` / `--color-secondary` | Muted on paper 6.00:1 and on sunken stock 5.30:1; maroon on paper 10.87:1, on its tint 9.51:1 |
+| `.type-eyebrow-mono` | `--color-foreground-muted` / `--color-secondary` / `--color-on-primary` / `--color-foreground` | As `.type-eyebrow`; white on pine-teal 10.33:1 for the dropzone CTA; graphite inside the amber-tinted OCR stamp |
+| `.type-subhead-serif` | `--color-secondary` / `inherit` | Maroon on paper 10.87:1 for card and docket titles; inherited inside the dialog, whose own ink carries it |
 | `.type-meta` | `--color-foreground-muted` | As `.type-eyebrow` |
 | `.type-data` | `--color-foreground` / `--color-foreground-muted` | Mono ink on paper 13.69:1, muted for secondary rows |
 

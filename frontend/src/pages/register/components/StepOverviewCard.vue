@@ -23,8 +23,10 @@ defineProps<{
        caption grid renders flat children as label/value rows. -->
   <article class="step-overview-card">
     <div class="step-overview-card__head">
-      <p class="step-overview-card__eyebrow">{{ eyebrow }}</p>
-      <h3 class="step-overview-card__title">{{ title }}</h3>
+      <p class="step-overview-card__eyebrow type-eyebrow-mono">{{ eyebrow }}</p>
+      <h3 class="step-overview-card__title type-subhead-serif">
+        {{ title }}
+      </h3>
     </div>
 
     <div class="step-overview-card__body type-body"><slot /></div>
@@ -65,14 +67,11 @@ defineProps<{
 //
 // No .type-eyebrow here: that role sets font-family to the sans stack, which
 // would drop the mono this filing line is printed in.
+// Typography from .type-eyebrow-mono — same reason as DocketPanel's: the
+// hand-written register carried no font-weight and inherited 400.
 .step-overview-card__eyebrow {
   color: var(--color-foreground-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   margin: 0;
-  text-transform: uppercase;
 }
 
 // Serif headline at the subhead scale the brief pins: maroon serif on
@@ -81,12 +80,9 @@ defineProps<{
 // token wider than the card. 700 is the only self-hosted Caslon weight.
 // No role class: .type-subhead is sans and rides --leading-subhead (40px),
 // where this wants the serif lockup voice on --leading-tight (32px).
+// Typography from .type-subhead-serif; overflow-wrap is local to long titles.
 .step-overview-card__title {
   color: var(--color-secondary);
-  font-family: var(--font-serif);
-  font-size: var(--text-subhead);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
   margin: 0;
   overflow-wrap: break-word;
 }

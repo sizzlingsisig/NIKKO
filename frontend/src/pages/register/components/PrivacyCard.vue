@@ -119,6 +119,9 @@
 }
 
 // Muted machine label — 6.00:1 on paper (documented, app.scss).
+// No role class: a mono *label*, kept at weight 400 and untransformed — the
+// self-hosted mono ships 400 only (see the value below), and .type-eyebrow-mono
+// would add a faux-bold plus an uppercase transform this copy does not want.
 .privacy-card__footer-label {
   color: var(--color-foreground-muted);
   font-family: var(--font-mono);

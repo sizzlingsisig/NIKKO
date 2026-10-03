@@ -222,7 +222,7 @@ onMounted(nameFocusTarget);
       <!-- Decorative only: the whole zone is the control and Quasar's native
            overlay owns the click, so this never takes pointer or focus
            events (aria-hidden says so out loud). -->
-      <span class="dropzone__cta" aria-hidden="true">
+      <span class="dropzone__cta type-eyebrow-mono" aria-hidden="true">
         <span class="dropzone__cta-glyph">+</span> SELECT FORM 5 PDF
       </span>
 
@@ -380,13 +380,7 @@ onMounted(nameFocusTarget);
 .dropzone__cta {
   background: var(--color-primary);
   color: var(--color-on-primary); // white on pine-teal 10.33:1
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   padding: var(--spacing-2) var(--spacing-4);
-  text-transform: uppercase;
 }
 
 // The tracked mono set gives the "+" a gap it does not want; the glyph runs

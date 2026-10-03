@@ -143,6 +143,9 @@ defineProps<{
 // Filing label: mono maroon caps, eyebrow-tracked — maroon on this card's
 // paper is 10.87:1 (documented, app.scss). Weight stays 400: the
 // self-hosted mono ships one weight only, so 700 would just faux-bold.
+// No role class: a mono *label*, not an eyebrow — kept at weight 400 (mono
+// ships 400 only) and untransformed, where .type-eyebrow-mono would add a
+// faux-bold and uppercase this sentence-case heading does not want.
 .guidelines-card__label {
   color: var(--color-secondary);
   font-family: var(--font-mono);

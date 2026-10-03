@@ -20,7 +20,9 @@ withDefaults(
          of "" silently swallowing it. -->
     <header v-if="eyebrow || title" class="app-card__band">
       <p v-if="eyebrow" class="app-card__eyebrow type-eyebrow">{{ eyebrow }}</p>
-      <h2 v-if="title" class="app-card__title">{{ title }}</h2>
+      <h2 v-if="title" class="app-card__title type-subhead-serif">
+        {{ title }}
+      </h2>
     </header>
 
     <div
@@ -116,12 +118,10 @@ withDefaults(
 // No role class: .type-subhead is sans and rides --leading-subhead (40px),
 // where this wants the serif lockup voice on --leading-tight (32px). The
 // weight is tokenised rather than left raw.
+// Typography from .type-subhead-serif; color stays local because it is
+// surface-dependent and the role classes never set it.
 .app-card__title {
   color: var(--color-secondary);
-  font-family: var(--font-serif);
-  font-size: var(--text-subhead);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
   margin: 0;
 }
 

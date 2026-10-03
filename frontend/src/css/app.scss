@@ -366,6 +366,33 @@
   font-variant-numeric: tabular-nums;
 }
 
+// ---- Family variants -------------------------------------------------------
+// A role with the same size/weight/tracking/case but a different face. These
+// exist because "eyebrow in mono" and "subhead in serif" are otherwise
+// inexpressible, which is what pushes those sites back into hand-written CSS —
+// and a hand-written eyebrow is how two mono eyebrows shipped at weight 400
+// while their three siblings shipped at 700.
+
+// Same five declarations as .type-eyebrow; only the face differs.
+.type-eyebrow-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-caption);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+// Same as .type-subhead except the face and the leading. Serif wants less
+// leading than sans at the same size, so this takes --leading-tight (32px on
+// 24px), not --leading-subhead (40px). That difference is deliberate.
+.type-subhead-serif {
+  font-family: var(--font-serif);
+  font-size: var(--text-subhead);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+}
+
 // ============================================================================
 // Base
 // ============================================================================

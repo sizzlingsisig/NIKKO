@@ -12,13 +12,16 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   >
     <q-card class="ocr-dialog">
       <q-card-section class="ocr-dialog__head">
-        <h3 class="ocr-dialog__title">⚠️ Low OCR confidence</h3>
+        <h3 class="ocr-dialog__title type-subhead-serif">
+          ⚠️ Low OCR confidence
+        </h3>
       </q-card-section>
       <q-card-section class="ocr-dialog__body">
         Tesseract.js confidence is below the
-        <span class="ocr-dialog__figure">75%</span> threshold for this scan. The
-        extracted fields have been pre-filled. Please review and correct each
-        highlighted field manually before submitting.
+        <span class="ocr-dialog__figure type-eyebrow-mono">75%</span>
+        threshold for this scan. The extracted fields have been pre-filled.
+        Please review and correct each highlighted field manually before
+        submitting.
       </q-card-section>
       <q-card-actions align="right" class="ocr-dialog__actions">
         <q-btn
@@ -56,14 +59,10 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   padding: var(--spacing-4) var(--spacing-6);
 }
 
-// No role class: .type-subhead is sans and rides --leading-subhead (40px),
-// where this wants the serif lockup voice on --leading-tight (32px).
+// Typography from .type-subhead-serif — the serif lockup voice on the tighter
+// serif leading, which plain .type-subhead (sans, 40px) does not give.
 .ocr-dialog__title {
   color: inherit;
-  font-family: var(--font-serif);
-  font-size: var(--text-subhead);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
   margin: 0;
 }
 
@@ -80,18 +79,12 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   padding: var(--spacing-4) var(--spacing-6);
 }
 
-// No .type-eyebrow here: that role sets font-family to the sans stack, which
-// would drop the mono this measurement stamp is printed in.
+// Typography from .type-eyebrow-mono; the stamp box itself is local.
 .ocr-dialog__figure {
   background: var(--color-accent-soft);
   border: var(--border-hairline) solid var(--color-foreground);
   color: var(--color-foreground);
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   padding: 0 var(--spacing-2);
   text-transform: uppercase;
 }

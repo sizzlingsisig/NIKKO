@@ -23,7 +23,7 @@ withDefaults(
   <article class="docket-panel">
     <header class="docket-panel__head">
       <div class="docket-panel__heading">
-        <p class="docket-panel__eyebrow">{{ eyebrow }}</p>
+        <p class="docket-panel__eyebrow type-eyebrow-mono">{{ eyebrow }}</p>
         <h2 class="docket-panel__title type-title">{{ title }}</h2>
       </div>
       <div v-if="$slots.meta" class="docket-panel__meta">
@@ -91,14 +91,13 @@ withDefaults(
 //
 // No .type-eyebrow here: that role sets font-family to the sans stack, which
 // would drop the mono this filing code is printed in.
+// Typography from .type-eyebrow-mono. This used to spell the register out by
+// hand and declared no font-weight, so it inherited 400 while three sibling
+// mono eyebrows shipped 700 — the split the role class now prevents by
+// construction. Color and margin stay local.
 .docket-panel__eyebrow {
   color: var(--color-foreground-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   margin: 0;
-  text-transform: uppercase;
 }
 
 // The serif display title — the panel's voice: maroon serif on paper
@@ -118,6 +117,10 @@ withDefaults(
 // row *and* right-aligns it on its own line when it wraps; muted so bare
 // text nodes read as meta (6.00:1 on paper) while chips inside keep their
 // own ink.
+// No role class: this is a mono *label*, not an eyebrow — it stays unbolded
+// and untransformed, where .type-eyebrow-mono would add a 700 the mono face
+// fakes and an uppercase transform these values do not want. Tracked, because
+// it is a field label on the same mono register as the eyebrow above it.
 .docket-panel__meta {
   color: var(--color-foreground-muted);
   font-family: var(--font-mono);
