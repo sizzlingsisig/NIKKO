@@ -30,7 +30,7 @@
       <span>RA 10173 PRIVACY GUARANTEE</span>
     </h3>
 
-    <p class="privacy-card__body">
+    <p class="privacy-card__body type-body">
       In compliance with the Philippine Data Privacy Act of 2012, your Form 5
       never leaves this device or transmits to any cloud server. Zero server
       upload residue.
@@ -64,12 +64,16 @@
 // Heading: body-scale bold caps, eyebrow-tracked — the clause voice the RA
 // string carries (the serif display headline belongs to the step overview
 // card above it). Ink on paper (13.69:1); the lock inherits that ink.
+//
+// No role class: body-SIZE bold with eyebrow tracking, and the ladder has no
+// such role — .type-body-strong carries no tracking, .type-eyebrow would drop
+// it to caption. The register stays spelled out.
 .privacy-card__heading {
   align-items: center;
   color: var(--color-foreground);
   display: flex;
   font-size: var(--text-body);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   gap: var(--spacing-2);
   letter-spacing: var(--tracking-eyebrow);
   line-height: var(--leading-body);
@@ -86,11 +90,10 @@
 
 // Body copy: body size, ink (13.69:1 on this card's paper). Hand-wrapped
 // in source; HTML collapses the line breaks to single spaces, so the
-// sentence renders exactly as pinned.
+// sentence renders exactly as pinned. .type-body matches exactly; this rule
+// keeps the ink and margin.
 .privacy-card__body {
   color: var(--color-foreground);
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
   margin: 0;
 }
 

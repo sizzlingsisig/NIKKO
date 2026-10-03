@@ -81,6 +81,10 @@ const emit = defineEmits<{ restart: [] }>();
 // bridge pins outline borders to --color-border-input, so both the label and
 // the outer rule are re-ruled here in stamp ink (maroon on paper 10.87:1).
 // Anchoring on .stub lifts every selector above the global .q-btn rules.
+//
+// No .type-eyebrow available: this targets a Quasar-internal through :deep(),
+// so there is no authored tag to hang the role class on. The register stays
+// spelled out here.
 .stub :deep(.ack__restart) {
   border-radius: 0;
   color: var(--color-stamp) !important;

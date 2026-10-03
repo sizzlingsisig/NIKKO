@@ -89,7 +89,7 @@ defineProps<{
         class="guidelines-card__item"
       >
         <p class="guidelines-card__label">{{ entry.label }}</p>
-        <p class="guidelines-card__copy">{{ entry.body }}</p>
+        <p class="guidelines-card__copy type-body">{{ entry.body }}</p>
       </li>
     </ol>
   </section>
@@ -111,10 +111,14 @@ defineProps<{
 // Heading: the clause voice the privacy card uses — body-scale bold caps,
 // eyebrow-tracked, ink on paper (13.69:1). The § ships inside the pinned
 // copy, so no transform rides along (the string is caps already).
+//
+// No role class: this is body-SIZE bold with eyebrow tracking, and the ladder
+// has no such role — .type-body-strong carries no tracking, .type-eyebrow
+// would drop it to caption. The register stays spelled out.
 .guidelines-card__heading {
   color: var(--color-foreground);
   font-size: var(--text-body);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   line-height: var(--leading-body);
   margin: 0;
@@ -149,11 +153,9 @@ defineProps<{
 }
 
 // Entry copy: body size, ink (13.69:1 on paper). Margin zeroed because it
-// is a <p>.
+// is a <p>. .type-body matches exactly; this rule keeps the ink and margin.
 .guidelines-card__copy {
   color: var(--color-foreground);
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
   margin: 0;
 }
 

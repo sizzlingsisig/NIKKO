@@ -72,7 +72,7 @@ onBeforeUnmount(() => {
 
     <!-- Verified: rubber stamp lands on the stub, announced to screen
          readers, then the hand-off to the console follows it. -->
-    <p v-else class="token-gate__stamp" role="status">
+    <p v-else class="token-gate__stamp type-eyebrow" role="status">
       <q-icon name="check" size="16px" />
       <span>Verified</span>
     </p>
@@ -153,6 +153,7 @@ onBeforeUnmount(() => {
 // Rubber stamp: tracked small caps maroon on its tint (9.51:1), square
 // cut, pressing once from just oversized (exponential ease-out; the
 // default state under reduced motion is fully visible).
+// .type-eyebrow carries the register; this rule keeps the cell and the press.
 .token-gate__stamp {
   align-items: center;
   animation: token-gate-stamp var(--duration-fast) var(--ease-out) both;
@@ -160,14 +161,9 @@ onBeforeUnmount(() => {
   border: var(--border-hairline) solid var(--color-stamp);
   color: var(--color-stamp);
   display: inline-flex;
-  font-size: var(--text-caption);
-  font-weight: 700;
   gap: var(--spacing-2);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   margin: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  text-transform: uppercase;
 }
 
 @keyframes token-gate-stamp {

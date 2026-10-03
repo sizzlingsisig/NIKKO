@@ -134,7 +134,7 @@ function onExportXlsx() {
                the row classes RosterTable stamps, so the sentence and the
                table agree in code as well as in ink. -->
           <div class="console__section console__ledger">
-            <p class="console__legend">
+            <p class="console__legend type-body">
               Rows highlighted <strong class="is-latest">green</strong> are the
               versions exported (latest <code>submitted_at</code> per student);
               <strong class="is-collapsed">red</strong> rows are earlier
@@ -232,6 +232,11 @@ function onExportXlsx() {
 // Shared stamp geometry: square-cut cells with tracked small caps, the cell
 // this book presses everything with. Global .q-btn already carries the 44px
 // floor; restated so the target survives a bridge change.
+//
+// No .type-eyebrow here, deliberately — same reason as MainLayout's
+// .letterhead__link: these are <q-btn>s, and app.scss's global .q-btn lands
+// after .type-eyebrow at equal specificity (0-1-0), so the role class would
+// lose and the register has to stay spelled out in this 0-2-0 scoped rule.
 .console__stamp,
 .console__export {
   border-radius: 0;
@@ -295,10 +300,9 @@ function onExportXlsx() {
 // ---- Legend ----------------------------------------------------------------
 // Fine print on the ledger page: muted ink at the body size, held to a readable
 // measure (6.00:1 on paper) beside a table three times as wide.
+// .type-body carries the register; this rule keeps colour, measure and rhythm.
 .console__legend {
   color: var(--color-foreground-muted);
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
   margin: 0 0 var(--spacing-6);
   max-width: 68ch; // 60-80 character measure
 }

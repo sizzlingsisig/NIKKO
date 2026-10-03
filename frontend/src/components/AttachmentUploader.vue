@@ -56,7 +56,7 @@ function onAdd(files: readonly File[]) {
 
 <template>
   <div class="uploader-field" :class="{ 'uploader-field--invalid': invalid }">
-    <span class="uploader-field__label">{{ label }}</span>
+    <span class="uploader-field__label type-eyebrow">{{ label }}</span>
 
     <q-file
       dropzone
@@ -87,7 +87,7 @@ function onAdd(files: readonly File[]) {
 
       <span class="uploader__info">
         <span
-          class="uploader__name"
+          class="uploader__name type-body-strong"
           :class="{ 'uploader__name--filed': attachment }"
           >{{ attachment?.name ?? PLACEHOLDER_TEXT[kind] }}</span
         >
@@ -99,7 +99,7 @@ function onAdd(files: readonly File[]) {
         </span>
       </span>
 
-      <span class="uploader__action">{{
+      <span class="uploader__action type-body-strong">{{
         attachment ? "Replace" : "Attach"
       }}</span>
       <q-btn
@@ -115,7 +115,11 @@ function onAdd(files: readonly File[]) {
       </q-btn>
     </q-file>
 
-    <p v-if="invalid" class="uploader-field__error" role="alert">
+    <p
+      v-if="invalid"
+      class="uploader-field__error type-body-strong"
+      role="alert"
+    >
       A {{ LABEL[kind].toLowerCase() }} is required{{ ERROR_SUFFIX[kind] }}.
     </p>
   </div>
@@ -124,16 +128,16 @@ function onAdd(files: readonly File[]) {
 <style scoped lang="scss">
 // Field label on its ruled line: tracked small caps with the rule running to
 // the edge — the ruled-entry header language of the slip.
+//
+// .type-eyebrow carries the register. This rule used to omit line-height and
+// so sat in the body's 24px box; it now takes --leading-caption (16px) like
+// every other caption label. The margin below the label absorbs the tighter box.
 .uploader-field__label {
   align-items: center;
   color: var(--color-foreground-muted);
   display: flex;
-  font-size: var(--text-caption);
-  font-weight: 700;
   gap: var(--spacing-2);
-  letter-spacing: var(--tracking-eyebrow);
   margin-bottom: var(--spacing-2);
-  text-transform: uppercase;
 }
 
 .uploader-field__label::after {
@@ -246,9 +250,10 @@ function onAdd(files: readonly File[]) {
   border: var(--border-hairline) solid var(--color-rule-entry);
   color: var(--color-foreground-muted);
   flex: none;
-  height: var(--spacing-16);
+  // T8: a dimension, not a spacing step — 4rem is --size-thumb.
+  height: var(--size-thumb);
   overflow: hidden;
-  width: var(--spacing-16);
+  width: var(--size-thumb);
 }
 
 .uploader__thumb--sig {
@@ -272,11 +277,11 @@ function onAdd(files: readonly File[]) {
 
 // Empty slot reads pending (5.32:1 on the sunken box); the filed filename
 // inks in — mono, because a filename is data.
+// .type-body-strong matches exactly what this rule spelled out (body / 700 /
+// --leading-body), so the swap is a no-op.
 .uploader__name {
   color: var(--color-stamp-pending);
   display: block;
-  font-size: var(--text-body);
-  font-weight: 700;
   word-break: break-all;
 }
 
@@ -294,11 +299,11 @@ function onAdd(files: readonly File[]) {
 }
 
 // The stamped action: maroon, underlined hard against its rule.
+// .type-body-strong matches exactly what this rule spelled out (body / 700 /
+// --leading-body), so the swap is a no-op.
 .uploader__action {
   color: var(--color-secondary);
   flex: none;
-  font-size: var(--text-body);
-  font-weight: 700;
   text-decoration: underline;
   text-decoration-color: var(--color-rule-strong);
   text-decoration-thickness: var(--border-hairline);
@@ -312,13 +317,12 @@ function onAdd(files: readonly File[]) {
 
 // Red-stamp margin note: rubber-stamped slip line under the slot. Sentence
 // case kept so the error stays plainly readable.
+// .type-body-strong matches exactly what this rule spelled out, so the swap
+// is a no-op.
 .uploader-field__error {
   background: var(--color-stamp-error-bg);
   border: var(--border-hairline) solid var(--color-stamp-error);
   color: var(--color-stamp-error); // on tint 5.75:1
-  font-size: var(--text-body);
-  font-weight: 700;
-  line-height: var(--leading-body);
   margin: var(--spacing-2) 0 0;
   padding: var(--spacing-2) var(--spacing-3);
 }

@@ -31,6 +31,11 @@ const stampClass = computed(() => STAMP[props.tone]);
 // The base carries the pending ink, so the default tone (and any tone a JS
 // caller invents at runtime) still lands on a legible stamp instead of
 // Quasar's grey. Pending: muted on sunken stock, 5.30:1.
+//
+// No .type-eyebrow here, deliberately. This is a <q-chip>, and app.scss's
+// global .q-chip (caption / 700 / eyebrow tracking) lands AFTER .type-eyebrow
+// at equal specificity (0-1-0), so a role class would lose. This scoped rule
+// is 0-2-0 and already outranks the bridge — the register stays spelled out.
 .app-chip {
   background: var(--color-surface-sunken);
   border: var(--border-hairline) solid var(--color-stamp-pending);
@@ -38,7 +43,7 @@ const stampClass = computed(() => STAMP[props.tone]);
   box-shadow: none; // the rule is the only elevation
   color: var(--color-stamp-pending);
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   line-height: var(--leading-caption);
   padding: var(--spacing-1) var(--spacing-3);

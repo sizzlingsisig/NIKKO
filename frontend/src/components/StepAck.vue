@@ -16,7 +16,7 @@ const isStruck = computed(() => props.refId.trim().length > 0);
          mark will land. role="status" announces the state as it changes. -->
     <div v-if="!isStruck" class="ack__stamp ack__stamp--pending" role="status">
       <q-spinner size="16px" aria-hidden="true" />
-      <span class="ack__pending-label">Submitting…</span>
+      <span class="ack__pending-label type-eyebrow">Submitting…</span>
     </div>
 
     <template v-else>
@@ -93,21 +93,10 @@ const isStruck = computed(() => props.refId.trim().length > 0);
   margin: 0 0 var(--spacing-2);
 }
 
-// The heading IS the mark: tracked caps stamped in its own ink. No kicker
-// line above it — the mark carries its own weight.
-.ack__title {
-  color: inherit;
-  font-size: var(--text-subhead);
-  font-weight: 700;
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-tight);
-  margin: 0;
-  text-transform: uppercase;
-}
-
 // Not yet struck: unstamped stock, pending ink, spinner in the mark's place.
 // Same frame as the struck stamp, so nothing about the block changes but the
-// ink and what it carries.
+// ink and what it carries. T8: min-height here is a dimension, not a spacing
+// step — 4rem is --size-ack.
 .ack__stamp--pending {
   align-items: center;
   background: var(--color-surface-sunken);
@@ -115,15 +104,21 @@ const isStruck = computed(() => props.refId.trim().length > 0);
   color: var(--color-stamp-pending); // muted on this stock 5.30:1
   display: inline-flex;
   gap: var(--spacing-3);
-  min-height: var(--spacing-16);
+  min-height: var(--size-ack);
   padding: var(--spacing-4) var(--spacing-8);
 }
 
-.ack__pending-label {
-  font-size: var(--text-caption);
-  font-weight: 700;
+// The heading IS the mark: tracked caps stamped in its own ink. No kicker
+// line above it — the mark carries its own weight. No role class: this is a
+// subhead-sized tracked caps, where .type-subhead has no tracking/uppercase
+// and .type-eyebrow would drop it to caption. Register stays spelled out.
+.ack__title {
+  color: inherit;
+  font-size: var(--text-subhead);
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
+  line-height: var(--leading-tight);
+  margin: 0;
   text-transform: uppercase;
 }
 
@@ -136,9 +131,14 @@ const isStruck = computed(() => props.refId.trim().length > 0);
   display: block;
   font-family: var(--font-mono);
   // Large, but capped so REG-YYYY-NNNNN never outgrows a 375px screen.
-  font-size: clamp(1.5rem, 7vw, 2.5rem);
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: var(--text-title-fluid);
+  font-weight: var(--weight-bold);
+  // Tracking snapped 0.1em -> --tracking-normal (VISIBLE). This is the value
+  // itself, not an uppercase label, so the brief's rule lands it on normal —
+  // which also matches .type-data, the token system's own mono role, and
+  // carries no letter-spacing. Flagged in the report: the old 0.1em gave the
+  // code visible glyph separation, so a human may prefer --tracking-eyebrow.
+  letter-spacing: var(--tracking-normal);
   margin: var(--spacing-6) auto var(--spacing-4);
   max-width: 100%;
   overflow-wrap: anywhere;

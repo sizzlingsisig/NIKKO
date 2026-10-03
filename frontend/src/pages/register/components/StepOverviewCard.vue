@@ -27,7 +27,7 @@ defineProps<{
       <h3 class="step-overview-card__title">{{ title }}</h3>
     </div>
 
-    <div class="step-overview-card__body"><slot /></div>
+    <div class="step-overview-card__body type-body"><slot /></div>
 
     <template v-if="$slots.status">
       <hr class="step-overview-card__rule" />
@@ -62,6 +62,9 @@ defineProps<{
 // transform keeps a caller's sentence-case line in the same voice; the
 // pinned copy ships caps already, so it renders byte-identical
 // (DocketPanel/AppCard's eyebrow pattern).
+//
+// No .type-eyebrow here: that role sets font-family to the sans stack, which
+// would drop the mono this filing line is printed in.
 .step-overview-card__eyebrow {
   color: var(--color-foreground-muted);
   font-family: var(--font-mono);
@@ -76,11 +79,13 @@ defineProps<{
 // paper (10.87:1) — the same ink as the AppCard and DocketPanel titles.
 // Margin zeroed because it is an <h3>; break-word only rescues a caller
 // token wider than the card. 700 is the only self-hosted Caslon weight.
+// No role class: .type-subhead is sans and rides --leading-subhead (40px),
+// where this wants the serif lockup voice on --leading-tight (32px).
 .step-overview-card__title {
   color: var(--color-secondary);
   font-family: var(--font-serif);
   font-size: var(--text-subhead);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   margin: 0;
   overflow-wrap: break-word;
@@ -88,10 +93,10 @@ defineProps<{
 
 // Body slot: body size, ink (13.69:1 on paper). Task 7 passes a bare
 // string here, so the div's own margins are all that matter.
+// .type-body matches exactly (sans / body / 400 / --leading-body); this rule
+// keeps the ink.
 .step-overview-card__body {
   color: var(--color-foreground);
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
 }
 
 // The hairline between body and status block — control-boundary ink

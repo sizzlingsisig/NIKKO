@@ -129,14 +129,16 @@ const display = (key: FieldKey, fields: RegistrationDraft) =>
   transform: translate(-50%, -50%) rotate(-32deg);
   color: oklch(0.3767 0.1396 26.51 / 0.09);
   font-size: var(--text-title);
-  font-weight: 800;
+  // Snapped 800 -> 700: the ladder has no 800, and this mark is decorative and
+  // aria-hidden at 9% opacity, so the step down is not perceptible.
+  font-weight: var(--weight-bold);
   white-space: nowrap;
   pointer-events: none;
 }
 
 .doc-preview__title {
   color: var(--color-secondary);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   text-align: center;
 }
 
@@ -158,7 +160,7 @@ const display = (key: FieldKey, fields: RegistrationDraft) =>
   background: var(--color-accent-soft);
   border-bottom: var(--border-rule) solid var(--color-accent);
   border-radius: 0;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   padding: 0 2px;
   word-break: break-word;
 }

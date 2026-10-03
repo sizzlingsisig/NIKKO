@@ -24,7 +24,7 @@ withDefaults(
     <header class="docket-panel__head">
       <div class="docket-panel__heading">
         <p class="docket-panel__eyebrow">{{ eyebrow }}</p>
-        <h2 class="docket-panel__title">{{ title }}</h2>
+        <h2 class="docket-panel__title type-title">{{ title }}</h2>
       </div>
       <div v-if="$slots.meta" class="docket-panel__meta">
         <slot name="meta" />
@@ -88,6 +88,9 @@ withDefaults(
 // muted ink — 6.00:1 on the panel's paper (documented, app.scss). The copy
 // ships caps; the transform keeps a caller's sentence-case eyebrow in the
 // same voice (AppCard's pattern).
+//
+// No .type-eyebrow here: that role sets font-family to the sans stack, which
+// would drop the mono this filing code is printed in.
 .docket-panel__eyebrow {
   color: var(--color-foreground-muted);
   font-family: var(--font-mono);
@@ -102,12 +105,10 @@ withDefaults(
 // (10.87:1, the same ink as the cap rule and AppCard's serif titles) at the
 // page's title scale. Zeroed margin because it is an <h2>; break-word only
 // rescues a caller-supplied token longer than the panel itself.
+// .type-title matches exactly (serif / title / bold / --leading-title); this
+// rule keeps the ink, the margin and the wrap.
 .docket-panel__title {
   color: var(--color-secondary);
-  font-family: var(--font-serif);
-  font-size: var(--text-title);
-  font-weight: 700;
-  line-height: var(--leading-title);
   margin: 0;
   overflow-wrap: break-word;
 }

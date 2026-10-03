@@ -26,14 +26,14 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
 
     <!-- `for` points at the QCheckbox input, so the whole sentence toggles it
          (q-banner renders a div, which cannot be a label host itself). -->
-    <label id="consent-text" for="consent-box" class="consent__text">
+    <label id="consent-text" for="consent-box" class="consent__text type-body">
       I authorize <strong>UPV Student Organization</strong> to collect and
       process the operational metadata, photograph, and signature above strictly
       for member roster management in accordance with <strong>RA 10173</strong>.
     </label>
   </q-banner>
 
-  <p v-if="invalid" class="consent__error" role="alert">
+  <p v-if="invalid" class="consent__error type-body-strong" role="alert">
     RA 10173 consent is required.
   </p>
 </template>
@@ -76,11 +76,11 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   border-color: var(--color-stamp-error);
 }
 
+// .type-body matches exactly (sans / body / 400 / --leading-body); this rule
+// keeps the ink, the pointer and the measure.
 .consent__text {
   color: var(--color-foreground);
   cursor: pointer;
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
   max-width: 68ch; // 60-80 character measure
 }
 
@@ -105,14 +105,14 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
 // Rejected: the sentence below is stamped into the margin — destructive ink
 // on its tint (5.75:1 measured), square-cut frame, full 1px border, no
 // colored side rail, no shadow.
+//
+// .type-body-strong matches exactly what this rule spelled out (body / 700 /
+// --leading-body), so the swap is a no-op.
 .consent__error {
   background: var(--color-stamp-error-bg);
   border: var(--border-hairline) solid var(--color-stamp-error);
   border-radius: 0;
   color: var(--color-stamp-error);
-  font-size: var(--text-body);
-  font-weight: 700;
-  line-height: var(--leading-body);
   margin: var(--spacing-2) 0 0;
   padding: var(--spacing-1) var(--spacing-3);
 }

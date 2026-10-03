@@ -213,7 +213,7 @@ onMounted(nameFocusTarget);
         <!-- Referenced by aria-labelledby in nameFocusTarget(): the prompt
              doubles as the control's accessible name, so it is never "a file
              input" and never unnamed. -->
-        <p :id="LABEL_ID" class="dropzone__lead">
+        <p :id="LABEL_ID" class="dropzone__lead type-subhead">
           Drag and drop your official Form 5 PDF here
         </p>
         <p class="dropzone__alt">or browse from your computer</p>
@@ -349,11 +349,10 @@ onMounted(nameFocusTarget);
 // The one instruction the student has to act on, so it carries subhead weight
 // and outranks the `AppCard` title that contains it (also subhead, but serif
 // and maroon — a different voice at the same size, not a louder one).
+// .type-subhead matches exactly (sans / subhead / 700 / --leading-subhead),
+// so the swap is a no-op.
 .dropzone__lead {
   color: var(--color-foreground);
-  font-size: var(--text-subhead);
-  font-weight: 700;
-  line-height: var(--leading-subhead);
   margin: 0;
 }
 
@@ -375,12 +374,15 @@ onMounted(nameFocusTarget);
 // the control and the overlaid native owns the click (the template marks it
 // aria-hidden for exactly that reason). Mono, tracked, cut square like every
 // other stamped label in the slip.
+//
+// No .type-eyebrow here: that role sets font-family to the sans stack, which
+// would drop the mono this stamp is cut in. The register stays spelled out.
 .dropzone__cta {
   background: var(--color-primary);
   color: var(--color-on-primary); // white on pine-teal 10.33:1
   font-family: var(--font-mono);
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   line-height: var(--leading-caption);
   padding: var(--spacing-2) var(--spacing-4);
@@ -388,9 +390,11 @@ onMounted(nameFocusTarget);
 }
 
 // The tracked mono set gives the "+" a gap it does not want; the glyph runs
-// untracked so it reads as one mark against the words.
+// untracked so it reads as one mark against the words. (Raw 0 tokenised to
+// --tracking-normal — identical computed value, outside the brief's 0.1/0.02em
+// rule but the same token-system intent.)
 .dropzone__cta-glyph {
-  letter-spacing: 0;
+  letter-spacing: var(--tracking-normal);
 }
 
 // Trust row: mono caption, centred (inherits the window's text-align), two

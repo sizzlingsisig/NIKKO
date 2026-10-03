@@ -77,7 +77,7 @@ onMounted(() => {
             <AppCrest :size="40" class="letterhead__seal" />
             <div class="letterhead__titles">
               <h1 class="letterhead__name">NIKKO</h1>
-              <p class="letterhead__window">
+              <p class="letterhead__window type-eyebrow">
                 Nexus for Identity-verification, Key-signatures, and Kompiled
                 Organization-lists
               </p>
@@ -143,7 +143,7 @@ onMounted(() => {
         </div>
 
         <div class="app-footer__col">
-          <p class="app-footer__col-label">Navigate</p>
+          <p class="app-footer__col-label type-eyebrow">Navigate</p>
           <nav class="app-footer__links" aria-label="Footer">
             <router-link
               v-for="item in NAV_ITEMS"
@@ -156,7 +156,7 @@ onMounted(() => {
         </div>
 
         <div class="app-footer__col">
-          <p class="app-footer__col-label">Release</p>
+          <p class="app-footer__col-label type-eyebrow">Release</p>
           <p class="app-footer__stamp">v1.8.4</p>
           <p class="app-footer__stamp">Last updated 2026-10-02</p>
         </div>
@@ -202,21 +202,25 @@ onMounted(() => {
 .letterhead__name {
   font-family: var(--font-serif);
   font-size: var(--text-subhead);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
-  letter-spacing: 0.02em;
+  // Snapped 0.02em -> --tracking-normal in the token migration. It is the
+  // wordmark, not an eyebrow: it keeps its own scoped rule, because
+  // .type-eyebrow would drop it to caption sans.
+  letter-spacing: var(--tracking-normal);
   text-transform: uppercase;
   color: var(--color-secondary);
   margin: 0;
 }
 
 .letterhead__window {
-  font-size: var(--text-caption);
-  font-weight: 600;
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
   color: var(--color-foreground-muted);
   margin: 3px 0 0;
+  // .type-eyebrow supplies the whole tracked-caps register. This rule used to
+  // omit line-height and inherit the body's --leading-body, so the window line
+  // sat in a 24px box; it now takes --leading-caption (16px) like every other
+  // caption label. The 3px margin above compensates for the tighter box.
+  // Weight snapped 600 -> 700 (.type-eyebrow's) as part of the same change.
 
   // The acronym expansion ("Nexus for Identity-verification…") is four words
   // of supporting copy — the first thing to give up when horizontal room is
@@ -246,8 +250,16 @@ onMounted(() => {
   border-radius: 0;
   background: none;
   color: var(--color-foreground);
+  // No .type-eyebrow here, deliberately. This is a <q-btn>, and app.scss's
+  // global .q-btn rule (16px / 700 / tracking 0 / not uppercase) lands after
+  // .type-eyebrow at equal specificity — a role class added here would lose.
+  // The scoped rule outranks both, so the eyebrow register stays spelled out.
+  // Open drift: line-height is the one bundle declaration missing here, since
+  // Quasar's own .q-btn sets line-height on this box and overriding it would
+  // change the button's height, not just its label's. Left for a human call
+  // rather than snapped blind.
   font-size: var(--text-caption);
-  font-weight: 600;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   text-decoration: none;
@@ -358,17 +370,24 @@ onMounted(() => {
 
 // Column labels in the letterhead's meta register — the same tracked caps
 // as the nav links and window line. Muted, 6.00:1 on paper.
+//
+// .type-eyebrow supplies the whole tracked-caps register on both labels
+// ("Navigate" and "Release"), so weight/tracking/uppercase are spelled out
+// nowhere. .app-footer already sets caption size on --leading-caption, which
+// is exactly what .type-eyebrow sets, so the swap is weight-only here: the
+// raw 600 snapped to 700 (.type-eyebrow's). This rule keeps colour and margin.
 .app-footer__col-label {
   color: var(--color-foreground-muted);
-  font-weight: 600;
-  letter-spacing: var(--tracking-eyebrow);
   margin: 0;
-  text-transform: uppercase;
 }
 
-// Wayfinding: the two real destinations as plain router links — ink 600
+// Wayfinding: the two real destinations as plain router links — ink bold
 // with the header link's ink on hover/focus, 24px targets, and the active
 // route resting maroon like the header's claim line.
+//
+// No role class: these are sentence-case links, so .type-eyebrow would
+// uppercase them, and .type-meta would drop them to 400 — flattening two
+// destinations into the muted fine print they are meant to stand out from.
 .app-footer__links {
   display: flex;
   flex-direction: column;
@@ -377,7 +396,10 @@ onMounted(() => {
 
 .app-footer__link {
   color: var(--color-foreground);
-  font-weight: 600;
+  // Snapped 600 -> 700. Only two weights exist (Libre Caslon ships 700-only,
+  // JetBrains Mono 400-only); 700 keeps these two links the same voice as the
+  // header's .letterhead__link and still ahead of the office line beneath.
+  font-weight: var(--weight-bold);
   padding: 2px 0;
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease-out);
@@ -423,11 +445,14 @@ onMounted(() => {
   flex-direction: column;
 }
 
-// Hierarchy by weight, not size: issuer leads ink 600, the office line
+// Hierarchy by weight, not size: issuer leads ink bold, the office line
 // trails muted beneath (8.9:1 / 6.00:1 on paper).
 .app-footer__name {
   color: var(--color-foreground);
-  font-weight: 600;
+  // Snapped 600 -> 700. The hierarchy the comment describes is weight-based,
+  // so it has to survive the snap: 700 keeps the issuer above the office line,
+  // which inherits the footer's 400.
+  font-weight: var(--weight-bold);
 }
 
 .app-footer__office {

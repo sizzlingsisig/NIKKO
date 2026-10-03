@@ -56,11 +56,13 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   padding: var(--spacing-4) var(--spacing-6);
 }
 
+// No role class: .type-subhead is sans and rides --leading-subhead (40px),
+// where this wants the serif lockup voice on --leading-tight (32px).
 .ocr-dialog__title {
   color: inherit;
   font-family: var(--font-serif);
   font-size: var(--text-subhead);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   margin: 0;
 }
@@ -78,6 +80,8 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   padding: var(--spacing-4) var(--spacing-6);
 }
 
+// No .type-eyebrow here: that role sets font-family to the sans stack, which
+// would drop the mono this measurement stamp is printed in.
 .ocr-dialog__figure {
   background: var(--color-accent-soft);
   border: var(--border-hairline) solid var(--color-foreground);
@@ -85,7 +89,7 @@ const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
   display: inline-block;
   font-family: var(--font-mono);
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   line-height: var(--leading-caption);
   padding: 0 var(--spacing-2);

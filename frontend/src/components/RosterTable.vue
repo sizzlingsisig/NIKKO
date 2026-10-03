@@ -177,10 +177,15 @@ const tableRows = computed(() => props.rows);
 }
 
 // Rubber-stamp verdict: tracked small caps, square-cut.
+//
+// No .type-eyebrow here: this is a <q-badge>, and Quasar pins the badge's own
+// line-height as part of its vertical box — restating it would resize the
+// stamp, not just relabel it. The scoped rule is already 0-2-0 and outranks
+// both Quasar's .q-badge and a 0-1-0 role class, so the register stays here.
 .roster-table__badge {
   border-radius: 0;
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   margin-left: var(--spacing-2);
   padding: 2px var(--spacing-2);
@@ -190,6 +195,10 @@ const tableRows = computed(() => props.rows);
 // Empty ledger page: sunken stock ruled to the same 48px row rhythm the
 // table uses, so the page reads as waiting for its first entry rather than
 // as an error state. Message colour is muted-on-stock (5.30:1).
+//
+// No role class is available to this rule at all: it targets a Quasar-internal
+// element reached through :deep(), so there is no authored tag in this
+// template to hang .type-eyebrow on. The register is spelled out here.
 .roster-table :deep(.q-table__bottom--nodata) {
   align-items: center;
   background-color: var(--color-surface-sunken);
@@ -202,7 +211,7 @@ const tableRows = computed(() => props.rows);
   color: var(--color-foreground-muted);
   display: flex;
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   min-height: 12rem;
   padding: var(--spacing-4) var(--spacing-6);
@@ -211,7 +220,11 @@ const tableRows = computed(() => props.rows);
 
 .roster-table :deep(.q-table__bottom-nodata-icon) {
   color: var(--color-foreground-muted);
-  font-size: 200%;
+  // 2x the body size. NOT the same as Quasar's own `font-size: 200%` this
+  // replaces: the percentage resolved against the caption-sized
+  // .q-table__bottom--nodata below (12px -> 24px), while this is 32px. The
+  // icon is a size, not a spacing step, so it is expressed off --text-body.
+  font-size: calc(var(--text-body) * 2);
   margin-right: var(--spacing-3);
 }
 </style>

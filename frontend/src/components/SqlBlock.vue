@@ -63,13 +63,17 @@ const segments = computed<Segment[]>(() => {
 // Ruled caption, same idiom as the slip header: maroon ink on the sunken
 // stock, closed by the strong maroon rule the ledger uses. Mono because the
 // caption is a field label for the statement beneath it.
+//
+// No .type-eyebrow here, deliberately: that role sets font-family to the sans
+// stack, which would drop the mono this caption earns as the statement's
+// field label. The register is spelled out instead.
 .sql-block__caption {
   background: var(--color-surface-sunken);
   border-bottom: var(--border-rule) solid var(--color-secondary);
   color: var(--color-secondary);
   font-family: var(--font-mono);
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-eyebrow);
   line-height: var(--leading-caption);
   margin: 0;
@@ -95,11 +99,11 @@ const segments = computed<Segment[]>(() => {
 // for readers who cannot separate the hues.
 .sql-block__keyword {
   color: var(--color-secondary);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .sql-block__function {
   color: var(--color-primary);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 </style>

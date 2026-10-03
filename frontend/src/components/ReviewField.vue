@@ -208,6 +208,9 @@ watch(
 
 // Red-stamp correction note: destructive ink on its tint (5.75:1 measured),
 // square-cut frame, no shadow. Full 1px border, never a colored side rail.
+//
+// No role class available: this targets a Quasar-internal element through
+// :deep(), so there is no authored tag to hang one on. Weight tokenised here.
 .review-field.review-field--error :deep(.q-field__message--error) {
   background: var(--color-stamp-error-bg);
   border: var(--border-hairline) solid var(--color-stamp-error);
@@ -215,7 +218,7 @@ watch(
   color: var(--color-stamp-error);
   display: inline-block;
   font-size: var(--text-body);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: var(--leading-body);
   margin-top: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-3);

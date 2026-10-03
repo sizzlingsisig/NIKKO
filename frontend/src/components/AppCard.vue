@@ -19,7 +19,7 @@ withDefaults(
          markup (e.g. a <strong> in the subtitle) without the prop default
          of "" silently swallowing it. -->
     <header v-if="eyebrow || title" class="app-card__band">
-      <p v-if="eyebrow" class="app-card__eyebrow">{{ eyebrow }}</p>
+      <p v-if="eyebrow" class="app-card__eyebrow type-eyebrow">{{ eyebrow }}</p>
       <h2 v-if="title" class="app-card__title">{{ title }}</h2>
     </header>
 
@@ -42,20 +42,31 @@ withDefaults(
 </template>
 
 <style scoped lang="scss">
-// Slip frame: square-cut white paper with hairline edges. Elevation is
-// declared once — the 1px border — so no shadow rides alongside it.
-// radius/box-shadow beat the global .q-card rounded-card defaults.
+// Slip frame: square-cut white paper. Elevation is declared once — as the
+// shadow, not as the border — so no second frame rides alongside it. The
+// hairline edge is gone from the resting card; --elevation-raised is the only
+// lift it carries. radius/box-shadow beat the global .q-card rounded-card
+// defaults (the global's shadow happens to match; ours is stated so the frame
+// is this card's own decision, not an inherited one).
 .app-card {
   background: var(--color-surface);
-  border: var(--border-hairline) solid var(--color-rule-hairline);
+  border: none;
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: var(--elevation-raised);
 }
 
 // Keyboard focus anywhere inside the slip: ink hairline with an amber hairline
 // hard against it. Amber vs ink 7.90:1; amber alone on paper is 1.73:1 (never).
+// The ink half used to be the card's own `border`, so `border-color` alone
+// carried it. With the border gone that would be a no-op and the amber outline
+// would sit straight on white at 1.73:1 — under the 3:1 WCAG 1.4.11 floor.
+// The hairline now rides as the outermost shadow ring instead, which puts it
+// back in exactly the pixel the border occupied: shadow ring first, amber
+// outline painted outside it.
 .app-card:focus-within {
-  border-color: var(--color-foreground);
+  box-shadow:
+    var(--elevation-raised),
+    0 0 0 var(--border-hairline) var(--color-foreground);
   outline: var(--border-rule) solid var(--color-rule-focus);
   outline-offset: 0;
 }
@@ -74,34 +85,37 @@ withDefaults(
 // Tracked small caps code (Step 1, FR-4.1) — the record's own filing data,
 // so it stays on the card as quiet muted ink rather than a headline. The
 // maroon tick in front of it is the only signal colour in the header.
+// .type-eyebrow carries the register (size/weight/leading/tracking/uppercase);
+// this rule keeps the flex row, the gap, the margin and the ink.
 .app-card__eyebrow {
   align-items: center;
   color: var(--color-foreground-muted);
   display: flex;
-  font-size: var(--text-caption);
-  font-weight: 700;
   gap: var(--spacing-2);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   margin: 0 0 var(--spacing-2);
-  text-transform: uppercase;
 }
 
+// A 24px maroon hairline. A length, not a gap: the spacing scale would let a
+// future rhythm change resize a decorative tick. One consumer, so a literal
+// rather than a token — same call as RosterTable's calc().
 .app-card__eyebrow::before {
   background: var(--color-secondary);
   content: "";
   flex: none;
   height: var(--border-hairline);
-  width: var(--spacing-6);
+  width: 1.5rem;
 }
 
 // Maroon serif on paper, 10.87:1 — the same voice and colour as the NIKKO
 // lockup in the header, so a card title and the product name read as one hand.
+// No role class: .type-subhead is sans and rides --leading-subhead (40px),
+// where this wants the serif lockup voice on --leading-tight (32px). The
+// weight is tokenised rather than left raw.
 .app-card__title {
   color: var(--color-secondary);
   font-family: var(--font-serif);
   font-size: var(--text-subhead);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   margin: 0;
 }

@@ -184,9 +184,11 @@ button.phase-strip__body {
 
 // The title: the stepper's own header voice — caption-size bold caps — but
 // untracked, since only badges and eyebrows carry the eyebrow tracking.
+// No role class: it is deliberately UNTRACKED, and .type-eyebrow would add
+// both the eyebrow tracking and the uppercase transform.
 .phase-strip__title {
   font-size: var(--text-caption);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: var(--leading-caption);
   overflow-wrap: break-word; // narrowest phones may break a long word
 }

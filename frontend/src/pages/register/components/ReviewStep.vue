@@ -64,12 +64,12 @@ const sourceNote = computed(() =>
     <q-form novalidate @submit="emit('submit')">
       <div class="review-slip__panes">
         <section class="pane pane--proof">
-          <h3 class="pane__title">Document Preview</h3>
+          <h3 class="pane__title type-eyebrow">Document Preview</h3>
           <DocumentPreview :file-name="fileName" :fields="draft" />
         </section>
 
         <section class="pane pane--entry">
-          <h3 class="pane__title">Review &amp; Correct</h3>
+          <h3 class="pane__title type-eyebrow">Review &amp; Correct</h3>
 
           <ReviewField
             v-model="draft.student_number"
@@ -123,7 +123,9 @@ const sourceNote = computed(() =>
           <!-- The sheet's second seam: a strong maroon rule opens the
                attachment block, the same way the ruled footer closes its own
                end. -->
-          <h3 class="pane__title pane__title--seam">Identity Attachments</h3>
+          <h3 class="pane__title pane__title--seam type-eyebrow"
+            >Identity Attachments</h3
+          >
 
           <AttachmentUploader
             kind="photo"
@@ -224,17 +226,14 @@ const sourceNote = computed(() =>
 // header every block on a slip opens with, and the label language
 // AttachmentUploader already uses above each slot. It heads its block; nothing
 // sits above it, so it is the block's own title, not a kicker.
+// .type-eyebrow carries the register, matching AttachmentUploader's label;
+// this rule keeps the rule-out, the ink, the gap and the margin.
 .pane__title {
   align-items: center;
   color: var(--color-secondary); // maroon on paper 10.87:1
   display: flex;
-  font-size: var(--text-caption);
-  font-weight: 700;
   gap: var(--spacing-2);
-  letter-spacing: var(--tracking-eyebrow);
-  line-height: var(--leading-caption);
   margin: 0 0 var(--spacing-3);
-  text-transform: uppercase;
 }
 
 .pane__title::after {
@@ -312,6 +311,10 @@ const sourceNote = computed(() =>
 // filing stamp stays the footer's only stamped cell. `color="primary"` emits
 // .text-primary with !important, and .q-btn--outline pins a transparent
 // background, so both are out-specified here.
+//
+// No .type-eyebrow available: this targets a Quasar-internal through :deep(),
+// so there is no authored tag to hang the role class on. The register stays
+// spelled out here — the same outcome as the .q-btn bridge decision elsewhere.
 .review-slip__actions :deep(.q-btn--outline) {
   color: var(--color-foreground) !important; // ink on paper ~12:1
   font-size: var(--text-caption);

@@ -95,7 +95,7 @@ const BULLETS: Readonly<Record<LogLine["tone"], string>> = {
 
 .parse-log__bullet {
   flex: none;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   width: 1ch;
 }
 

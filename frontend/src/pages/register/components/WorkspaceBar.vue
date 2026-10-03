@@ -10,7 +10,7 @@
        inside the DocketPanel and briefing cards below keep the display
        voice; balance evens the wrap when the line breaks on mid widths. -->
   <header class="workspace-bar">
-    <h2 class="workspace-bar__title"
+    <h2 class="workspace-bar__title type-body-strong"
       >University of the Philippines Visayas - Organization Registration
       Portal</h2
     >
@@ -26,10 +26,9 @@
 // Title: body ink — 13.69:1 on paper (documented, app.scss) — bold, with
 // the h2 margin zeroed. break-word only rescues a token wider than the
 // column; balance keeps a two-line wrap even.
+// .type-body-strong matches exactly what this rule spelled out, so the swap
+// is a no-op; this rule keeps the wrap control and the h2 margin.
 .workspace-bar__title {
-  font-size: var(--text-body);
-  font-weight: 700;
-  line-height: var(--leading-body);
   margin: 0;
   min-width: 0;
   overflow-wrap: break-word;
